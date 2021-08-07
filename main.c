@@ -7,7 +7,7 @@
 #define VM_STACK_CAPACITY 1024
 #define PROGRAM_CAPACITY 1024
 #define ARRAY_SIZE(xs) (sizeof(xs)/sizeof((xs)[0]))
-
+#define EXEC_LIMIT 1024
 typedef int64_t word;
 
 typedef enum {
@@ -16,22 +16,19 @@ typedef enum {
   ERR_STACK_UNDERFLOW,
   ERR_ILLEGAL_INST,
   ERR_DIV_BY_ZERO,
+  ERR_ILLEGAL_INST_ACCESS
+
 }err_t;
 
 const char* err_as_cstr(err_t trap){
   switch (trap) {
-    case ERR_OK:
-      return "ERR_OK";
-    case ERR_STACK_OVERFLOW:
-      return "ERR_STACK_OVERFLOW";
-    case ERR_STACK_UNDERFLOW:
-      return "TRAP_STACK_UNDERFLOW";
-    case ERR_ILLEGAL_INST:
-      return "ERR_ILLEGAL_INST";
-    case ERR_DIV_BY_ZERO:
-      return "ERR_DIV_BY_ZERO";
-    default:
-      assert(0 &&"trap_as_cstr: Unreachable");
+    case ERR_OK:{return "ERR_OK";}
+    case ERR_STACK_OVERFLOW:{return "ERR_STACK_OVERFLOW";}
+    case ERR_STACK_UNDERFLOW:{return "ERR_STACK_UNDERFLOW";}
+    case ERR_ILLEGAL_INST:{return "ERR_ILLEGAL_INST";}
+    case ERR_DIV_BY_ZERO:{return "ERR_DIV_BY_ZERO";}
+    case ERR_ILLEGAL_INST_ACCESS:{return "ERR_ILLEGAL_INST_ACCESS";}
+    default:{assert(0 &&"trap_as_cstr: Unreachable");}
   }
 }
 
@@ -67,10 +64,10 @@ typedef struct {
 
 typedef struct {
   word stack[VM_STACK_CAPACITY];
-  size_t stack_size;
+  word stack_size;
 
   inst program[PROGRAM_CAPACITY];
-  size_t program_size;
+  word program_size;
 
   word ip;
   int halt;
@@ -81,14 +78,18 @@ void push_inst(vm* machine,inst ins){
   machine->program[machine->program_size++] = ins;
 }
 
-err_t vm_execute_inst(vm* machine,inst inst){
-  switch (inst.type) {
+err_t vm_execute_inst(vm* machine){
+  if (machine->ip <0 || machine->ip > machine->program_size){
+    return ERR_ILLEGAL_INST_ACCESS;
+  }
+  inst vm_inst= machine->program[machine->ip];
+  switch (vm_inst.type) {
     case INST_PUSH: {
       if(machine->stack_size >= VM_STACK_CAPACITY){
         return ERR_STACK_OVERFLOW;
       }
       machine->ip +=1;
-      machine->stack[machine->stack_size++]=inst.operand;
+      machine->stack[machine->stack_size++]=vm_inst.operand;
     }break;
     case INST_PLUS: {
       if (machine->stack_size <2){
@@ -125,12 +126,10 @@ err_t vm_execute_inst(vm* machine,inst inst){
       machine->ip+=1;
     }break;
     case INST_JMP:{
-      if (inst.operand < 0 || inst.operand > ){
-
-      }
+      machine->ip = vm_inst.operand;
     }break;
     case INST_HALT:{
-
+      machine->halt =1;
     }break;
   default:
     return ERR_ILLEGAL_INST;
@@ -159,20 +158,21 @@ void vm_dump_stack(FILE * stream,const vm* machine){
 
 vm machine = {0};
 inst program[]={
-    MAKE_INST_PUSH(68),
-    MAKE_INST_PUSH(89),
-    MAKE_INST_PLUS,
-    MAKE_INST_PUSH(78),
-    MAKE_INST_MINUS,
-    MAKE_INST_PUSH(2),
-    MAKE_INST_MULT,
     MAKE_INST_PUSH(0),
-    MAKE_INST_DIV,
+    MAKE_INST_PUSH(1),
+    MAKE_INST_PLUS,
+    MAKE_INST_JMP(1)
+//    MAKE_INST_PUSH(78),
+//    MAKE_INST_MINUS,
+//    MAKE_INST_PUSH(2),
+//    MAKE_INST_MULT,
+//    MAKE_INST_PUSH(0),
+//    MAKE_INST_DIV,
 };
 
 void load_program_from_memory(vm* machine,inst* program,size_t program_size){
   assert(program_size <PROGRAM_CAPACITY);
-  memcpy(machine->program,program,program_size);
+  memcpy(machine->program,program,sizeof(inst)*program_size);
   machine->program_size=program_size;
 }
 
@@ -183,15 +183,12 @@ void load_program_from_file(word* ptr,size_t program_size){
 int main(int argc,char* argv[]) {
   load_program_from_memory(&machine,program,ARRAY_SIZE(program));
   vm_dump_stack(stdout,&machine);
-  while (!machine.halt){
-    for (size_t i=0;i <ARRAY_SIZE(program);++i){
-      printf("%s\n",inst_type_as_cstr(program[machine.ip].type));
-      err_t trap =vm_execute_inst(&machine,program[machine.ip]);
-      vm_dump_stack(stdout,&machine);
-      if (trap !=ERR_OK){
-        fprintf(stderr,"ERROR: %s\n",err_as_cstr(trap));
-        exit(-1);
-      }
+  for (int i =0; i< EXEC_LIMIT && !machine.halt;++i){
+    err_t trap =vm_execute_inst(&machine);
+    vm_dump_stack(stdout,&machine);
+    if (trap !=ERR_OK){
+      fprintf(stderr,"ERROR: %s\n",err_as_cstr(trap));
+      exit(-1);
     }
   }
 }
