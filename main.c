@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <assert.h>
+#include <errno.h>
 
 #define VM_STACK_CAPACITY 1024
 #define PROGRAM_CAPACITY 1024
@@ -15,6 +16,7 @@ typedef enum {
   ERR_STACK_OVERFLOW,
   ERR_STACK_UNDERFLOW,
   ERR_ILLEGAL_INST,
+  ERR_ILLEGAL_OPERAND,
   ERR_DIV_BY_ZERO,
   ERR_ILLEGAL_INST_ACCESS
 
@@ -27,6 +29,7 @@ const char* err_as_cstr(err_t trap){
     case ERR_STACK_UNDERFLOW:{return "ERR_STACK_UNDERFLOW";}
     case ERR_ILLEGAL_INST:{return "ERR_ILLEGAL_INST";}
     case ERR_DIV_BY_ZERO:{return "ERR_DIV_BY_ZERO";}
+    case ERR_ILLEGAL_OPERAND:{return "ERR_ILLEGAL_OPERAND";}
     case ERR_ILLEGAL_INST_ACCESS:{return "ERR_ILLEGAL_INST_ACCESS";}
     default:{assert(0 &&"trap_as_cstr: Unreachable");}
   }
@@ -40,7 +43,11 @@ typedef enum{
   INST_MULT,
   INST_DIV,
   INST_JMP,
+  INST_JMP_IF,
+  INST_EQ,
+  INST_DUP,
   INST_HALT,
+  INST_PRINT_DEBUG,
 }inst_t;
 
 const char* inst_type_as_cstr(inst_t inst_type){
@@ -52,6 +59,10 @@ const char* inst_type_as_cstr(inst_t inst_type){
     case INST_MINUS:{return "INST_MINUS";}
     case INST_JMP:{return "INST_JMP";}
     case INST_HALT:{return "INST_HALT";}
+    case INST_JMP_IF:{return "INST_JMP_IF";}
+    case INST_EQ:{return "INST_EQ";}
+    case INST_PRINT_DEBUG:{return "INST_PRINT_DEBUG";}
+    case INST_DUP:{return "INST_DUP";}
     default:assert(0&& "inst_type_as_cstr:Unreachable");
   }
 }
@@ -60,7 +71,6 @@ typedef struct {
   inst_t type;
   word operand;
 } inst;
-
 
 typedef struct {
   word stack[VM_STACK_CAPACITY];
@@ -116,7 +126,7 @@ err_t vm_execute_inst(vm* machine){
     }break;
     case INST_DIV:  {
       if (machine->stack_size <2){
-        return ERR_STACK_UNDERFLOW;
+          return ERR_STACK_UNDERFLOW;
       }
       if(machine->stack[machine->stack_size-1] ==0){
         return ERR_DIV_BY_ZERO;
@@ -131,12 +141,56 @@ err_t vm_execute_inst(vm* machine){
     case INST_HALT:{
       machine->halt =1;
     }break;
+    case INST_JMP_IF:{
+      if (machine->stack_size <1){
+        return ERR_STACK_UNDERFLOW;
+      }
+      if (machine->stack[machine->stack_size-1]){
+        machine->stack_size-=1;
+        machine->ip = vm_inst.operand;
+      } else{
+        machine->ip += 1;
+      }
+    }break;
+    case INST_EQ:{
+      if (machine->stack_size <2){
+        return ERR_STACK_UNDERFLOW;
+      }
+      machine->stack[machine->stack_size-2] =machine->stack[machine->stack_size-1]== machine->stack[machine->stack_size-2];
+      machine->stack_size -=1;
+      machine->ip+=1;
+    }break;
+    case INST_PRINT_DEBUG:{
+      if (machine->stack_size <2){
+        return ERR_STACK_UNDERFLOW;
+      }
+      printf("%ld\n",machine->stack[machine->stack_size-1]);
+      machine->stack_size-=1;
+      machine->ip +=1;
+    }break;
+    case INST_DUP:{
+      if (machine->stack_size >VM_STACK_CAPACITY){
+        return ERR_STACK_OVERFLOW;
+      }
+      if(machine->stack_size -vm_inst.operand <=0){
+        return ERR_STACK_UNDERFLOW;
+      }
+      if (vm_inst.operand <0){
+        return ERR_ILLEGAL_OPERAND;
+      }
+      machine->stack[machine->stack_size] = machine->stack[machine->stack_size-1 -vm_inst.operand];
+      machine->stack_size+=1;
+      machine->ip +=1;
+    }break;
   default:
     return ERR_ILLEGAL_INST;
   }
   return ERR_OK;
 }
 
+err_t get_stack_frame(vm* machine){
+
+}
 void vm_dump_stack(FILE * stream,const vm* machine){
   printf("Stack:\n");
   if (machine->stack_size >0) {
@@ -154,20 +208,17 @@ void vm_dump_stack(FILE * stream,const vm* machine){
 #define MAKE_INST_MULT ((inst){.type = INST_MULT })
 #define MAKE_INST_DIV ((inst){.type = INST_DIV })
 #define MAKE_INST_JMP(addr) ((inst){.type = INST_JMP,.operand=(addr)})
+#define MAKE_INST_DUP(addr) ((inst){.type = INST_DUP,.operand=(addr)})
 #define MAKE_INST_HALT(addr) ((inst){.type = INST_HALT,.operand=(addr)})
 
 vm machine = {0};
 inst program[]={
-    MAKE_INST_PUSH(0),
-    MAKE_INST_PUSH(1),
-    MAKE_INST_PLUS,
-    MAKE_INST_JMP(1)
-//    MAKE_INST_PUSH(78),
-//    MAKE_INST_MINUS,
-//    MAKE_INST_PUSH(2),
-//    MAKE_INST_MULT,
-//    MAKE_INST_PUSH(0),
-//    MAKE_INST_DIV,
+    MAKE_INST_PUSH(0),//0
+    MAKE_INST_PUSH(1),//1
+    MAKE_INST_DUP(1),//2
+    MAKE_INST_DUP(1),//3
+    MAKE_INST_PLUS,//4
+    MAKE_INST_JMP(2)//5
 };
 
 void load_program_from_memory(vm* machine,inst* program,size_t program_size){
@@ -176,14 +227,60 @@ void load_program_from_memory(vm* machine,inst* program,size_t program_size){
   machine->program_size=program_size;
 }
 
-void load_program_from_file(word* ptr,size_t program_size){
+void save_program_to_file(inst* program,
+                          size_t program_size,
+                          const char* file_path) {
+  FILE* file =fopen(file_path,"wb");
+  if (file ==NULL){
+    fprintf(stderr,"ERROR:Could not open file %s :%s\n",file_path,strerror(errno));
+    exit(-1);
+  }
 
+  fwrite(program,sizeof(program[0]),program_size,file);
+  if (ferror(file)){
+    fprintf(stderr,"ERROR:Could not open file `%s`:%s\n",file_path,strerror(errno));
+
+    exit(-1);
+  }
+  fclose(file);
 }
 
+void load_program_from_file(vm* machine, const char* file_name){
+  FILE* file= fopen(file_name,"rb");
+  if (file == NULL){
+    fprintf(stderr,"ERROR:Could not open file %s :%s\n",file_name,strerror(errno));
+    exit(-1);
+  }
+  if (fseek(file,0,SEEK_END)< 0){
+    fprintf(stderr,"ERROR:Could not read file %s :%s\n",file_name,strerror(errno));
+    exit(-1);
+  }
+  int pos = ftell(file);
+  if (pos <0){
+    fprintf(stderr,"ERROR:Could not read file %s :%s\n",file_name,strerror(errno));
+    exit(-1);
+  }
+  assert(pos %sizeof(machine->program[0]) == 0 );
+  assert(pos <= PROGRAM_CAPACITY*sizeof(machine->program[0]));
+  if (fseek(file,0,SEEK_SET) <0){
+    fprintf(stderr,"ERROR:Could not read file %s :%s\n",file_name,strerror(errno));
+    exit(-1);
+  }
+  machine->program_size = fread(machine->program,sizeof(machine->program[0]),pos/sizeof(machine->program[0]),file);
+  if (ferror(file)){
+    fprintf(stderr,"ERROR:Could not read file %s :%s\n",file_name,strerror(errno));
+    exit(-1);
+  }
+  fclose(file);
+}
+
+
+
 int main(int argc,char* argv[]) {
-  load_program_from_memory(&machine,program,ARRAY_SIZE(program));
-  vm_dump_stack(stdout,&machine);
-  for (int i =0; i< EXEC_LIMIT && !machine.halt;++i){
+//  load_program_from_memory(&machine,program,ARRAY_SIZE(program));
+  save_program_to_file(program,ARRAY_SIZE(program),"./fib.vm");
+  load_program_from_file(&machine,"./fib.vm");
+  for (int i =0; i< 69 && !machine.halt;++i){
     err_t trap =vm_execute_inst(&machine);
     vm_dump_stack(stdout,&machine);
     if (trap !=ERR_OK){
@@ -191,4 +288,6 @@ int main(int argc,char* argv[]) {
       exit(-1);
     }
   }
+  vm_dump_stack(stdout,&machine);
+  return 0;
 }
