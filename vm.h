@@ -4,11 +4,16 @@
 
 #ifndef VM__INSTRUCTION_H
 #define VM__INSTRUCTION_H
+#include <stack>
+namespace vm{
+class vm{
+public:
 
-
-struct instruction {
-
+private:
+  std::stack<>
 };
+}
+
 
 
 
