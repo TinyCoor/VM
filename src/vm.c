@@ -36,7 +36,6 @@ void push_inst(vm* machine,inst ins){
   assert(machine->program_size <PROGRAM_CAPACITY);
   machine->program[machine->program_size++] = ins;
 }
-
 err_t vm_execute_inst(vm* machine){
   if (machine->ip <0 || machine->ip > machine->program_size){
     return ERR_ILLEGAL_INST_ACCESS;
@@ -139,7 +138,6 @@ err_t vm_execute_inst(vm* machine){
   }
   return ERR_OK;
 }
-
 err_t get_stack_frame(vm* machine){
 
 }
@@ -153,13 +151,11 @@ void vm_dump_stack(FILE * stream,const vm* machine){
     fprintf(stream,"[empty]\n");
   }
 }
-
 void load_program_from_memory(vm* machine,inst* program,size_t program_size){
   assert(program_size <PROGRAM_CAPACITY);
   memcpy(machine->program,program,sizeof(inst)*program_size);
   machine->program_size=program_size;
 }
-
 void save_program_to_file(inst* program,
                           size_t program_size,
                           const char* file_path) {
@@ -177,7 +173,6 @@ void save_program_to_file(inst* program,
   }
   fclose(file);
 }
-
 void load_program_from_file(vm* machine, const char* file_name){
   FILE* file= fopen(file_name,"rb");
   if (file == NULL){
@@ -206,7 +201,6 @@ void load_program_from_file(vm* machine, const char* file_name){
   }
   fclose(file);
 }
-
 inst translate_line(string_view line){
   line= sv_trim_left(line);
   string_view inst_name = sv_chop_by_delim(&line,' ');
@@ -235,7 +229,6 @@ inst translate_line(string_view line){
 
   return MAKE_INST_NOP;
 }
-
 size_t translate_src(string_view src,inst* program,size_t program_capacity){
   size_t program_size = 0;
   while (src.count> 0){
@@ -247,7 +240,6 @@ size_t translate_src(string_view src,inst* program,size_t program_capacity){
   }
   return program_size;
 }
-
 string_view slurp_file(const char* file_name){
   FILE* file= fopen(file_name,"rb");
   if (file == NULL){
@@ -279,3 +271,16 @@ string_view slurp_file(const char* file_name){
   fclose(file);
   return (string_view){n,buffer};
 }
+err_t vm_execute_program(vm* machine,int limit){
+  while (limit!= 0 && !machine->halt) {
+    err_t err = vm_execute_inst(machine);
+    if (err !=ERR_OK){
+      return err;
+    }
+    if (limit >0){
+      --limit;
+    }
+  }
+  return ERR_OK;
+}
+

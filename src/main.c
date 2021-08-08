@@ -1,8 +1,21 @@
 
 #include "vm.h"
 vm machine = {0};
+char* shift(int* argc,char *** argv){
+  assert(*argc > 0);
+  char* result = **argv;
+  *argv +=1;
+  *argc -=1;
+  return result;
+}
+
+void usage(FILE* stream,const char* program){
+  fprintf(stream,"Usage:./%s <input> <output>",program);
+}
 
 int main(int argc,char* argv[]) {
+
+
   if (argc < 3){
     fprintf(stderr,"Usage:./bme <input.vm> <output.vbm>");
     fprintf(stderr,"ERROR:expected input and output");

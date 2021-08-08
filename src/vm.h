@@ -30,7 +30,6 @@
 #define MAKE_INST_HALT(addr) ((inst){.type = INST_HALT,.operand=(addr)})
 
 typedef int64_t word;
-
 typedef enum {
   ERR_OK,
   ERR_STACK_OVERFLOW,
@@ -41,7 +40,6 @@ typedef enum {
   ERR_ILLEGAL_INST_ACCESS
 
 }err_t;
-
 typedef enum{
   INST_NOP,
   INST_PUSH,
@@ -56,12 +54,10 @@ typedef enum{
   INST_HALT,
   INST_PRINT_DEBUG,
 }inst_t;
-
 typedef struct {
   inst_t type;
   word operand;
 } inst;
-
 typedef struct {
   word stack[VM_STACK_CAPACITY];
   word stack_size;
@@ -73,31 +69,19 @@ typedef struct {
   int halt;
 } vm;
 
-
-
 const char* err_as_cstr(err_t trap);
 const char* inst_type_as_cstr(inst_t inst_type);
 void push_inst(vm* machine,inst ins);
-
 err_t vm_execute_inst(vm* machine);
-
+err_t vm_execute_program(vm* machine,int limit);
 err_t get_stack_frame(vm* machine);
 void vm_dump_stack(FILE * stream,const vm* machine);
 void load_program_from_memory(vm* machine,inst* program,size_t program_size);
-
 void save_program_to_file(inst* program,
                           size_t program_size,
                           const char* file_path);
-
 void load_program_from_file(vm* machine, const char* file_name);
-
 inst translate_line(string_view line);
-
 size_t translate_src(string_view src,inst* program,size_t program_capacity);
-
 string_view slurp_file(const char* file_name);
-
-
-
-
 #endif //VM__INSTRUCTION_H
