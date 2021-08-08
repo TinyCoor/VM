@@ -4,7 +4,7 @@ vm machine = {0};
 
 int main(int argc,char* argv[]) {
   if (argc < 3){
-    fprintf(stderr,"Usage:./bm <input.vm> <output.vbm>");
+    fprintf(stderr,"Usage:./bme <input.vm> <output.vbm>");
     fprintf(stderr,"ERROR:expected input and output");
     exit(-1);
   }

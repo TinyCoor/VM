@@ -154,8 +154,6 @@ void vm_dump_stack(FILE * stream,const vm* machine){
   }
 }
 
-
-
 void load_program_from_memory(vm* machine,inst* program,size_t program_size){
   assert(program_size <PROGRAM_CAPACITY);
   memcpy(machine->program,program,sizeof(inst)*program_size);
