@@ -1,6 +1,10 @@
+    jmp loop
+#This is comment
     push 0
     push 1
+loop:
     dup 1
-    dup 1
+    dup 1 #This is comment
+#This is comment
     plus
-    jmp 2
+    jmp loop

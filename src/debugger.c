@@ -4,6 +4,6 @@
 
 #include "vm.h"
 
-int main(ingt argc,char* argv[]){
+int main(int argc,char* argv[]){
 
 }

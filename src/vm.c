@@ -138,9 +138,10 @@ err_t vm_execute_inst(vm* machine){
   }
   return ERR_OK;
 }
-err_t get_stack_frame(vm* machine){
+//err_t get_stack_frame(vm* machine){
+//
+//}
 
-}
 void vm_dump_stack(FILE * stream,const vm* machine){
   printf("Stack:\n");
   if (machine->stack_size >0) {
@@ -156,6 +157,7 @@ void load_program_from_memory(vm* machine,inst* program,size_t program_size){
   memcpy(machine->program,program,sizeof(inst)*program_size);
   machine->program_size=program_size;
 }
+
 void save_program_to_file(inst* program,
                           size_t program_size,
                           const char* file_path) {
@@ -173,6 +175,7 @@ void save_program_to_file(inst* program,
   }
   fclose(file);
 }
+
 void load_program_from_file(vm* machine, const char* file_name){
   FILE* file= fopen(file_name,"rb");
   if (file == NULL){
@@ -188,7 +191,7 @@ void load_program_from_file(vm* machine, const char* file_name){
     fprintf(stderr,"ERROR:Could not read file %s :%s\n",file_name,strerror(errno));
     exit(-1);
   }
-  assert(pos %sizeof(machine->program[0]) == 0 );
+  assert(pos % sizeof(machine->program[0]) == 0);
   assert(pos <= PROGRAM_CAPACITY*sizeof(machine->program[0]));
   if (fseek(file,0,SEEK_SET) <0){
     fprintf(stderr,"ERROR:Could not read file %s :%s\n",file_name,strerror(errno));
@@ -201,45 +204,95 @@ void load_program_from_file(vm* machine, const char* file_name){
   }
   fclose(file);
 }
-inst translate_line(string_view line){
+
+inst translate_line(vm* machine,label_table* lt,string_view line){
   line= sv_trim_left(line);
   string_view inst_name = sv_chop_by_delim(&line,' ');
+  string_view op = sv_trim(sv_chop_by_delim(&line,'#'));
 
-//  printf("$%.*s\n",inst_name.count,inst_name.data);
-  if (sv_eq(inst_name,cstr_as_string_view("push"))){
+  if (inst_name.count > 0 && inst_name.data[inst_name.count -1] ==':'){
+    string_view label={inst_name.count-1,inst_name.data};
+    label_table_push(lt,label,machine->program_size);
+  } else if (sv_eq(inst_name,cstr_as_string_view("push"))){
     line= sv_trim_left(line);
     int op = sv_to_int(sv_trim_right(line));
     return (inst){INST_PUSH,op};
   } else if(sv_eq(inst_name,cstr_as_string_view("dup"))){
     line = sv_trim_left(line);
-    int op = sv_to_int(sv_trim_right(line));
-    return (inst){INST_DUP,op};
+    return (inst){INST_DUP,sv_to_int(op)};
   } else if (sv_eq(inst_name,cstr_as_string_view("plus"))){
-//    line = sv_trim_left(line);
     return (inst){INST_PLUS};
   } else if (sv_eq(inst_name,cstr_as_string_view("jmp"))){
     line = sv_trim_left(line);
-    int op = sv_to_int(sv_trim_right(line));
-    return (inst){INST_JMP,op};
-  }
-
-  else{
+    return (inst){INST_JMP,sv_to_int(op)};
+  }else{
     fprintf(stderr,"ERROR:Unkonw instruction %.*s ",inst_name.count,inst_name.data);
   }
 
   return MAKE_INST_NOP;
 }
-size_t translate_src(string_view src,inst* program,size_t program_capacity){
-  size_t program_size = 0;
+
+void translate_src(string_view src,
+                     vm* machine,
+                     label_table* lt){
   while (src.count> 0){
-    assert(program_size< PROGRAM_CAPACITY);
+    assert(machine->program_size < PROGRAM_CAPACITY);
     string_view line =sv_trim(  sv_chop_by_delim(&src,'\n'));
-    if (line.count > 0){
-      program[program_size++] = translate_line(line);
+    if (line.count > 0 && *line.data!='#'){
+      const inst ins = translate_line(machine,lt,line);
+      machine->program[machine->program_size++] = ins;
     }
   }
-  return program_size;
+  print_label_table(lt);
 }
+
+void translate_source(string_view src,
+                       vm* machine,
+                       label_table* lt){
+  while (src.count> 0){
+    assert(machine->program_size < PROGRAM_CAPACITY);
+    string_view line =sv_trim(  sv_chop_by_delim(&src,'\n'));
+    if (line.count > 0 && *line.data!='#'){
+      string_view inst_name = sv_chop_by_delim(&line,' ');
+      string_view op = sv_trim(sv_chop_by_delim(&line,'#'));
+      if (inst_name.count > 0 && inst_name.data[inst_name.count -1] ==':'){
+        string_view label={inst_name.count-1,inst_name.data};
+        label_table_push(lt,label,machine->program_size);
+      } else if (sv_eq(inst_name,cstr_as_string_view("push"))){
+        line= sv_trim_left(line);
+        machine->program[machine->program_size++] = (inst){
+          INST_PUSH,
+          sv_to_int(op)
+        };
+      } else if(sv_eq(inst_name,cstr_as_string_view("dup"))){
+        line = sv_trim_left(line);
+        machine->program[machine->program_size++] = (inst){
+          INST_DUP,
+          sv_to_int(op)
+        };
+      } else if (sv_eq(inst_name,cstr_as_string_view("plus"))){
+        machine->program[machine->program_size++] = (inst){
+          INST_PLUS
+        };
+      } else if (sv_eq(inst_name,cstr_as_string_view("jmp"))){
+        label_table_push_unresolved_label(lt,op,machine->program_size);
+        line = sv_trim_left(line);
+        machine->program[machine->program_size++] = (inst){
+          INST_JMP,
+        };
+      }else{
+        fprintf(stderr,"ERROR:Unkonw instruction %.*s ",inst_name.count,inst_name.data);
+        exit(-1);
+      }
+    }
+  }
+
+  for (int i = 0; i <lt->unresolved_size ; ++i) {
+   word address = label_table_find(lt,lt->unresolved_labels[i].name);
+   machine->program[lt->unresolved_labels[i].addr].operand = address;
+  }
+}
+
 string_view slurp_file(const char* file_name){
   FILE* file= fopen(file_name,"rb");
   if (file == NULL){
@@ -271,6 +324,7 @@ string_view slurp_file(const char* file_name){
   fclose(file);
   return (string_view){n,buffer};
 }
+
 err_t vm_execute_program(vm* machine,int limit){
   while (limit!= 0 && !machine->halt) {
     err_t err = vm_execute_inst(machine);

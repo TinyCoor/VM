@@ -2,7 +2,7 @@
 // Created by xm on 2021/8/8.
 //
 #include "vm.h"
-vm machine{0};
+vm machine={0};
 
 int main(int argc,char* argv[]){
   if (argc < 2){
@@ -17,7 +17,7 @@ int main(int argc,char* argv[]){
       printf("nop\n");
     }break;
     case INST_PUSH:{
-      printf("push %d\n",machine.program[i].operand)
+      printf("push %d\n",machine.program[i].operand);
     }break;
     case INST_PLUS:{
       printf("plus\n");
@@ -32,21 +32,21 @@ int main(int argc,char* argv[]){
       printf("div\n");
     }break;
     case INST_JMP:{
-      printf("jmp %ld\n",machine.program[i].operand)
+      printf("jmp %ld\n",machine.program[i].operand);
     }break;
     case INST_JMP_IF:{
-      printf("jmp_if %ld\n",machine.program[i].operand)
+      printf("jmp_if %ld\n",machine.program[i].operand);
     }break;
     case INST_EQ:{
-      printf("jmp %ld\n",machine.program[i].operand)
+      printf("jmp %ld\n",machine.program[i].operand);
     }break;
     case INST_DUP:{
-      printf("dup %ld\n",machine.program[i].operand)
+      printf("dup %ld\n",machine.program[i].operand);
     }break;
     case INST_HALT:{
 
     }break;
-    case INST_PRINT_DEBUG{
+    case INST_PRINT_DEBUG:{
 
     }break;
     }

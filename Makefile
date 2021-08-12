@@ -2,7 +2,9 @@ CFLAGS= -Wall -Wextra -Wswitch-enum -std=c11 -pedantic
 LIBS=
 
 .PHONY:all
-all : bme vm
+
+all:bme vm
+
 ebasm : main.c vm.c
     $(CC) $(CFLAGS) -o vm main.c $(LIBS)
 
