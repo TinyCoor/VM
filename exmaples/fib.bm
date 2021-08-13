@@ -1,4 +1,7 @@
-    jmp loop
+    jmp 1
+    nop
+    nop
+    nop
 #This is comment
     push 0
     push 1

@@ -15,7 +15,6 @@ void usage(FILE* stream,const char* program){
 }
 
 int main(int argc,char* argv[]) {
-
   if (argc < 3){
     fprintf(stderr,"Usage:./bme <input.vm> <output.vbm>");
     fprintf(stderr,"ERROR:expected input and output");

@@ -259,13 +259,11 @@ void translate_source(string_view src,
         string_view label={inst_name.count-1,inst_name.data};
         label_table_push(lt,label,machine->program_size);
       } else if (sv_eq(inst_name,cstr_as_string_view("push"))){
-        line= sv_trim_left(line);
         machine->program[machine->program_size++] = (inst){
           INST_PUSH,
           sv_to_int(op)
         };
       } else if(sv_eq(inst_name,cstr_as_string_view("dup"))){
-        line = sv_trim_left(line);
         machine->program[machine->program_size++] = (inst){
           INST_DUP,
           sv_to_int(op)
@@ -275,18 +273,31 @@ void translate_source(string_view src,
           INST_PLUS
         };
       } else if (sv_eq(inst_name,cstr_as_string_view("jmp"))){
-        label_table_push_unresolved_label(lt,op,machine->program_size);
-        line = sv_trim_left(line);
+        if (op.count > 0 && isdigit(*(op.data)) ){
+          machine->program[machine->program_size++] = (inst){
+              INST_JMP,
+              sv_to_int(op)
+          };
+        } else{
+          label_table_push_unresolved_label(lt,op,machine->program_size);
+          machine->program[machine->program_size++] = (inst){
+              INST_JMP,
+          };
+        }
+      } else if (sv_eq(inst_name,cstr_as_string_view("nop"))){
         machine->program[machine->program_size++] = (inst){
-          INST_JMP,
+            INST_NOP,
         };
-      }else{
+      }
+
+      else{
         fprintf(stderr,"ERROR:Unkonw instruction %.*s ",inst_name.count,inst_name.data);
         exit(-1);
       }
     }
   }
 
+  //Second pass
   for (int i = 0; i <lt->unresolved_size ; ++i) {
    word address = label_table_find(lt,lt->unresolved_labels[i].name);
    machine->program[lt->unresolved_labels[i].addr].operand = address;
