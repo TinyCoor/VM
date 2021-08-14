@@ -138,9 +138,8 @@ err_t vm_execute_inst(vm* machine){
   }
   return ERR_OK;
 }
-//err_t get_stack_frame(vm* machine){
-//
-//}
+
+
 
 void vm_dump_stack(FILE * stream,const vm* machine){
   printf("Stack:\n");
@@ -152,6 +151,7 @@ void vm_dump_stack(FILE * stream,const vm* machine){
     fprintf(stream,"[empty]\n");
   }
 }
+
 void load_program_from_memory(vm* machine,inst* program,size_t program_size){
   assert(program_size <PROGRAM_CAPACITY);
   memcpy(machine->program,program,sizeof(inst)*program_size);
@@ -251,52 +251,58 @@ void translate_source(string_view src,
                        label_table* lt){
   while (src.count> 0){
     assert(machine->program_size < PROGRAM_CAPACITY);
-    string_view line =sv_trim(  sv_chop_by_delim(&src,'\n'));
-    if (line.count > 0 && *line.data!='#'){
+    string_view line =sv_trim(sv_chop_by_delim(&src,'\n'));
+    if (line.count > 0 && *line.data != '#'){
       string_view inst_name = sv_chop_by_delim(&line,' ');
-      string_view op = sv_trim(sv_chop_by_delim(&line,'#'));
+
       if (inst_name.count > 0 && inst_name.data[inst_name.count -1] ==':'){
-        string_view label={inst_name.count-1,inst_name.data};
+        string_view label={
+            inst_name.count-1,
+            inst_name.data
+        };
         label_table_push(lt,label,machine->program_size);
-      } else if (sv_eq(inst_name,cstr_as_string_view("push"))){
-        machine->program[machine->program_size++] = (inst){
-          INST_PUSH,
-          sv_to_int(op)
-        };
-      } else if(sv_eq(inst_name,cstr_as_string_view("dup"))){
-        machine->program[machine->program_size++] = (inst){
-          INST_DUP,
-          sv_to_int(op)
-        };
-      } else if (sv_eq(inst_name,cstr_as_string_view("plus"))){
-        machine->program[machine->program_size++] = (inst){
-          INST_PLUS
-        };
-      } else if (sv_eq(inst_name,cstr_as_string_view("jmp"))){
-        if (op.count > 0 && isdigit(*(op.data)) ){
-          machine->program[machine->program_size++] = (inst){
-              INST_JMP,
+
+        inst_name = sv_trim( sv_chop_by_delim(&line,' '));
+      }
+      string_view op = sv_trim(sv_chop_by_delim(&line,'#'));
+      if (inst_name.count >0) {
+        if (sv_eq(inst_name, cstr_as_string_view("push"))) {
+          machine->program[machine->program_size++] = (inst) {
+              INST_PUSH,
               sv_to_int(op)
           };
-        } else{
-          label_table_push_unresolved_label(lt,op,machine->program_size);
-          machine->program[machine->program_size++] = (inst){
-              INST_JMP,
+        } else if (sv_eq(inst_name, cstr_as_string_view("dup"))) {
+          machine->program[machine->program_size++] = (inst) {
+              INST_DUP,
+              sv_to_int(op)
           };
+        } else if (sv_eq(inst_name, cstr_as_string_view("plus"))) {
+          machine->program[machine->program_size++] = (inst) {
+              INST_PLUS
+          };
+        } else if (sv_eq(inst_name, cstr_as_string_view("jmp"))) {
+          if (op.count > 0 && isdigit(*(op.data))) {
+            machine->program[machine->program_size++] = (inst) {
+                INST_JMP,
+                sv_to_int(op)
+            };
+          } else {
+            label_table_push_unresolved_label(lt, op, machine->program_size);
+            machine->program[machine->program_size++] = (inst) {
+                INST_JMP,
+            };
+          }
+        } else if (sv_eq(inst_name, cstr_as_string_view("nop"))) {
+          machine->program[machine->program_size++] = (inst) {
+              INST_NOP,
+          };
+        } else {
+          fprintf(stderr, "ERROR:Unkonw instruction %.*s ", inst_name.count, inst_name.data);
+          exit(-1);
         }
-      } else if (sv_eq(inst_name,cstr_as_string_view("nop"))){
-        machine->program[machine->program_size++] = (inst){
-            INST_NOP,
-        };
       }
-
-      else{
-        fprintf(stderr,"ERROR:Unkonw instruction %.*s ",inst_name.count,inst_name.data);
-        exit(-1);
       }
     }
-  }
-
   //Second pass
   for (int i = 0; i <lt->unresolved_size ; ++i) {
    word address = label_table_find(lt,lt->unresolved_labels[i].name);
@@ -331,7 +337,6 @@ string_view slurp_file(const char* file_name){
     fprintf(stderr,"ERROR:Could not read file %s :%s\n",file_name,strerror(errno));
     exit(-1);
   }
-
   fclose(file);
   return (string_view){n,buffer};
 }

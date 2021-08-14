@@ -23,7 +23,7 @@ int main(int argc,char* argv[]) {
   const char* input_file_path = argv[1];
   const char* output_file_path = argv[2];
 
-  string_view  src = slurp_file(input_file_path);
+  string_view src = slurp_file(input_file_path);
   translate_source(src,&machine,&lt);
   save_program_to_file(machine.program,machine.program_size,output_file_path);
 

@@ -6,6 +6,7 @@
 #define VM_SRC_LABEL_H
 #include "string_view.h"
 #include "types.h"
+
 #define LABEL_CAPACITY 1024
 #define UNRESOLVED_LABEL_CAPACITY 1024
 
@@ -26,15 +27,21 @@ typedef struct {
   size_t unresolved_size;
 }label_table;
 
+int label_table_find(const label_table*,
+                     string_view name);
 
-int label_table_find(const label_table* lt,string_view name);
-void label_table_push(label_table*, string_view ,word addr);
+void label_table_push(label_table*,
+                      string_view ,
+                      word addr);
+
 void label_table_push_unresolved_label(label_table*,
                                        string_view,
                                        word addr);
+
 void print_label_table(label_table* lt);
 
 bool is_contains_unresolved_label(label_table*);
+
 
 
 #endif //VM_SRC_LABEL_H
