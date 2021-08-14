@@ -1,0 +1,11 @@
+    jmp 1
+    nop
+    nop
+    nop
+#This is comment
+    push 0
+    push 1
+loop: dup 1
+      dup 1
+      plus
+      jmp loop
