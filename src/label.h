@@ -9,15 +9,15 @@
 
 #define LABEL_CAPACITY 1024
 #define UNRESOLVED_LABEL_CAPACITY 1024
-
+typedef uint64_t inst_addr;
 typedef struct {
   string_view name;
-  word addr;
+  inst_addr addr;
 }label_t;
 
 typedef struct {
   string_view name;
-  word addr;
+  inst_addr addr;
 }unresolved_label;
 
 typedef struct {
@@ -27,16 +27,16 @@ typedef struct {
   size_t unresolved_size;
 }label_table;
 
-int label_table_find(const label_table*,
+int label_table_find_addr(const label_table*,
                      string_view name);
 
-void label_table_push(label_table*,
+void label_table_push_label(label_table*,
                       string_view ,
-                      word addr);
+                      inst_addr addr);
 
 void label_table_push_unresolved_label(label_table*,
                                        string_view,
-                                       word addr);
+                                       inst_addr addr);
 
 void print_label_table(label_table* lt);
 

@@ -1,5 +1,6 @@
 
 #include "vm.h"
+#include "file.h"
 vm machine = {0};
 label_table lt ={0};
 char* shift(int* argc,char *** argv){

@@ -4,6 +4,13 @@
 
 #ifndef VM_SRC_TYPES_H
 #define VM_SRC_TYPES_H
+#include <stdint.h>
 typedef int64_t word;
+
+
+
+
+
+
 
 #endif //VM_SRC_TYPES_H

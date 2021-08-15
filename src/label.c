@@ -9,7 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 
-int label_table_find(const label_table* lt,string_view name){
+int label_table_find_addr(const label_table* lt,string_view name){
   for (size_t i = 0; i <lt->label_size ; ++i) {
     if (sv_eq(lt->labels[i].name,name)){
       return lt->labels[i].addr;
@@ -21,14 +21,14 @@ int label_table_find(const label_table* lt,string_view name){
   return -1;
 }
 
-void label_table_push(label_table* lt, string_view name,word addr){
+void label_table_push_label(label_table* lt, string_view name,inst_addr addr){
   assert(lt->label_size <LABEL_CAPACITY);
   lt->labels[lt->label_size++] = (label_t){name,addr};
 }
 
 void label_table_push_unresolved_label(label_table* lt,
                                        string_view name,
-                                       word addr
+                                       inst_addr addr
                                        ){
   assert(lt->unresolved_size <UNRESOLVED_LABEL_CAPACITY);
   lt->unresolved_labels[lt->unresolved_size++] = (unresolved_label){

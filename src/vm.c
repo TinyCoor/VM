@@ -3,41 +3,15 @@
 //
 
 #include "vm.h"
-const char* err_as_cstr(err_t trap){
-  switch (trap) {
-  case ERR_OK:{return "ERR_OK";}
-  case ERR_STACK_OVERFLOW:{return "ERR_STACK_OVERFLOW";}
-  case ERR_STACK_UNDERFLOW:{return "ERR_STACK_UNDERFLOW";}
-  case ERR_ILLEGAL_INST:{return "ERR_ILLEGAL_INST";}
-  case ERR_DIV_BY_ZERO:{return "ERR_DIV_BY_ZERO";}
-  case ERR_ILLEGAL_OPERAND:{return "ERR_ILLEGAL_OPERAND";}
-  case ERR_ILLEGAL_INST_ACCESS:{return "ERR_ILLEGAL_INST_ACCESS";}
-  default:{assert(0 &&"trap_as_cstr: Unreachable");}
-  }
-}
-const char* inst_type_as_cstr(inst_t inst_type){
-  switch (inst_type) {
-  case INST_NOP:{return "INST_NOP";}
-  case INST_PUSH:{return "INST_PUSH";}
-  case INST_PLUS:{return "INST_PLUS";}
-  case INST_MULT:{return "INST_MULT";}
-  case INST_DIV:{return "INST_DIV";}
-  case INST_MINUS:{return "INST_MINUS";}
-  case INST_JMP:{return "INST_JMP";}
-  case INST_HALT:{return "INST_HALT";}
-  case INST_JMP_IF:{return "INST_JMP_IF";}
-  case INST_EQ:{return "INST_EQ";}
-  case INST_PRINT_DEBUG:{return "INST_PRINT_DEBUG";}
-  case INST_DUP:{return "INST_DUP";}
-  default:assert(0&& "inst_type_as_cstr:Unreachable");
-  }
-}
+
+
 void push_inst(vm* machine,inst ins){
   assert(machine->program_size <PROGRAM_CAPACITY);
   machine->program[machine->program_size++] = ins;
 }
+
 err_t vm_execute_inst(vm* machine){
-  if (machine->ip <0 || machine->ip > machine->program_size){
+  if (machine->ip > machine->program_size){
     return ERR_ILLEGAL_INST_ACCESS;
   }
   inst vm_inst= machine->program[machine->ip];
@@ -52,42 +26,74 @@ err_t vm_execute_inst(vm* machine){
     machine->ip +=1;
     machine->stack[machine->stack_size++]=vm_inst.operand;
   }break;
-  case INST_PLUS: {
+  case INST_ADDI: {
     if (machine->stack_size <2){
       return ERR_STACK_UNDERFLOW;
     }
-    machine->stack[machine->stack_size-2] +=machine->stack[machine->stack_size-1];
+    machine->stack[machine->stack_size-2].as_u64 +=machine->stack[machine->stack_size-1].as_u64;
     machine->stack_size -=1;
     machine->ip+=1;
   }break;
-  case INST_MINUS:{
+  case INST_SUBI:{
     if (machine->stack_size <2){
       return ERR_STACK_UNDERFLOW;
     }
-    machine->stack[machine->stack_size-2] -=machine->stack[machine->stack_size-1];
+    machine->stack[machine->stack_size-2].as_u64 -=machine->stack[machine->stack_size-1].as_u64;
     machine->stack_size -=1;
   }break;
-  case INST_MULT: {
+  case INST_MULI: {
     if (machine->stack_size <2){
       return ERR_STACK_UNDERFLOW;
     }
-    machine->stack[machine->stack_size-2] *=machine->stack[machine->stack_size-1];
+    machine->stack[machine->stack_size-2].as_u64 *=machine->stack[machine->stack_size-1].as_u64;
     machine->stack_size -=1;
     machine->ip+=1;
   }break;
-  case INST_DIV:  {
+  case INST_DIVI:  {
     if (machine->stack_size <2){
       return ERR_STACK_UNDERFLOW;
     }
-    if(machine->stack[machine->stack_size-1] ==0){
+    if(machine->stack[machine->stack_size-1].as_u64 ==0){
       return ERR_DIV_BY_ZERO;
     }
-    machine->stack[machine->stack_size-2] /=machine->stack[machine->stack_size-1];
+    machine->stack[machine->stack_size-2].as_u64 /=machine->stack[machine->stack_size-1].as_u64;
     machine->stack_size -=1;
     machine->ip+=1;
   }break;
+  case INST_ADDF:{
+    if (machine->stack_size <2){
+      return ERR_STACK_UNDERFLOW;
+    }
+    machine->stack[machine->stack_size-2].as_f64 +=machine->stack[machine->stack_size-1].as_f64;
+    machine->stack_size -= 1;
+    machine->ip += 1;
+  }break;
+  case INST_SUBF:{
+    if (machine->stack_size <2){
+      return ERR_STACK_UNDERFLOW;
+    }
+    machine->stack[machine->stack_size-2].as_f64 -=machine->stack[machine->stack_size-1].as_f64;
+    machine->stack_size -= 1;
+    machine->ip += 1;
+  }break;
+  case INST_MULF:{
+    if (machine->stack_size <2){
+      return ERR_STACK_UNDERFLOW;
+    }
+    machine->stack[machine->stack_size-2].as_f64 *=machine->stack[machine->stack_size-1].as_f64;
+    machine->stack_size -= 1;
+    machine->ip += 1;
+  }break;
+  case INST_DIVF:{
+    if (machine->stack_size <2){
+      return ERR_STACK_UNDERFLOW;
+    }
+    machine->stack[machine->stack_size-2].as_f64 /=machine->stack[machine->stack_size-1].as_f64;
+    machine->stack_size -= 1;
+    machine->ip += 1;
+  }break;
   case INST_JMP:{
-    machine->ip = vm_inst.operand;
+    machine->ip = vm_inst.operand.as_u64;
   }break;
   case INST_HALT:{
     machine->halt =1;
@@ -96,9 +102,9 @@ err_t vm_execute_inst(vm* machine){
     if (machine->stack_size <1){
       return ERR_STACK_UNDERFLOW;
     }
-    if (machine->stack[machine->stack_size-1]){
+    if (machine->stack[machine->stack_size-1].as_u64){
       machine->stack_size-=1;
-      machine->ip = vm_inst.operand;
+      machine->ip = vm_inst.operand.as_u64;
     } else{
       machine->ip += 1;
     }
@@ -107,7 +113,7 @@ err_t vm_execute_inst(vm* machine){
     if (machine->stack_size <2){
       return ERR_STACK_UNDERFLOW;
     }
-    machine->stack[machine->stack_size-2] =machine->stack[machine->stack_size-1]== machine->stack[machine->stack_size-2];
+    machine->stack[machine->stack_size-2].as_u64 =machine->stack[machine->stack_size-1].as_u64== machine->stack[machine->stack_size-2].as_u64;
     machine->stack_size -=1;
     machine->ip+=1;
   }break;
@@ -115,7 +121,7 @@ err_t vm_execute_inst(vm* machine){
     if (machine->stack_size <2){
       return ERR_STACK_UNDERFLOW;
     }
-    printf("%ld\n",machine->stack[machine->stack_size-1]);
+    printf("%ld\n",machine->stack[machine->stack_size-1].as_u64);
     machine->stack_size-=1;
     machine->ip +=1;
   }break;
@@ -123,127 +129,34 @@ err_t vm_execute_inst(vm* machine){
     if (machine->stack_size >VM_STACK_CAPACITY){
       return ERR_STACK_OVERFLOW;
     }
-    if(machine->stack_size -vm_inst.operand <=0){
+    if(machine->stack_size - vm_inst.operand.as_u64 <=0){
       return ERR_STACK_UNDERFLOW;
     }
-    if (vm_inst.operand <0){
-      return ERR_ILLEGAL_OPERAND;
-    }
-    machine->stack[machine->stack_size] = machine->stack[machine->stack_size-1 -vm_inst.operand];
+    machine->stack[machine->stack_size] = machine->stack[machine->stack_size-1 -vm_inst.operand.as_u64];
     machine->stack_size+=1;
     machine->ip +=1;
   }break;
+
+  case AMOUNT_OF_INSTS:
   default:
     return ERR_ILLEGAL_INST;
   }
   return ERR_OK;
 }
 
-
-
 void vm_dump_stack(FILE * stream,const vm* machine){
   printf("Stack:\n");
   if (machine->stack_size >0) {
     for (size_t i = 0; i < machine->stack_size; ++i) {
-      fprintf(stream,"%lld\n", machine->stack[i]);
+      fprintf(stream,"%lu %lf %ld %p\n",
+              machine->stack[i].as_u64,
+              machine->stack[i].as_f64,
+              machine->stack[i].as_i64,
+              machine->stack[i].as_ptr);
     }
   } else{
     fprintf(stream,"[empty]\n");
   }
-}
-
-void load_program_from_memory(vm* machine,inst* program,size_t program_size){
-  assert(program_size <PROGRAM_CAPACITY);
-  memcpy(machine->program,program,sizeof(inst)*program_size);
-  machine->program_size=program_size;
-}
-
-void save_program_to_file(inst* program,
-                          size_t program_size,
-                          const char* file_path) {
-  FILE* file =fopen(file_path,"wb");
-  if (file ==NULL){
-    fprintf(stderr,"ERROR:Could not open file %s :%s\n",file_path,strerror(errno));
-    exit(-1);
-  }
-
-  fwrite(program,sizeof(program[0]),program_size,file);
-  if (ferror(file)){
-    fprintf(stderr,"ERROR:Could not open file `%s`:%s\n",file_path,strerror(errno));
-
-    exit(-1);
-  }
-  fclose(file);
-}
-
-void load_program_from_file(vm* machine, const char* file_name){
-  FILE* file= fopen(file_name,"rb");
-  if (file == NULL){
-    fprintf(stderr,"ERROR:Could not open file %s :%s\n",file_name,strerror(errno));
-    exit(-1);
-  }
-  if (fseek(file,0,SEEK_END)< 0){
-    fprintf(stderr,"ERROR:Could not read file %s :%s\n",file_name,strerror(errno));
-    exit(-1);
-  }
-  int pos = ftell(file);
-  if (pos <0){
-    fprintf(stderr,"ERROR:Could not read file %s :%s\n",file_name,strerror(errno));
-    exit(-1);
-  }
-  assert(pos % sizeof(machine->program[0]) == 0);
-  assert(pos <= PROGRAM_CAPACITY*sizeof(machine->program[0]));
-  if (fseek(file,0,SEEK_SET) <0){
-    fprintf(stderr,"ERROR:Could not read file %s :%s\n",file_name,strerror(errno));
-    exit(-1);
-  }
-  machine->program_size = fread(machine->program,sizeof(machine->program[0]),pos/sizeof(machine->program[0]),file);
-  if (ferror(file)){
-    fprintf(stderr,"ERROR:Could not read file %s :%s\n",file_name,strerror(errno));
-    exit(-1);
-  }
-  fclose(file);
-}
-
-inst translate_line(vm* machine,label_table* lt,string_view line){
-  line= sv_trim_left(line);
-  string_view inst_name = sv_chop_by_delim(&line,' ');
-  string_view op = sv_trim(sv_chop_by_delim(&line,'#'));
-
-  if (inst_name.count > 0 && inst_name.data[inst_name.count -1] ==':'){
-    string_view label={inst_name.count-1,inst_name.data};
-    label_table_push(lt,label,machine->program_size);
-  } else if (sv_eq(inst_name,cstr_as_string_view("push"))){
-    line= sv_trim_left(line);
-    int op = sv_to_int(sv_trim_right(line));
-    return (inst){INST_PUSH,op};
-  } else if(sv_eq(inst_name,cstr_as_string_view("dup"))){
-    line = sv_trim_left(line);
-    return (inst){INST_DUP,sv_to_int(op)};
-  } else if (sv_eq(inst_name,cstr_as_string_view("plus"))){
-    return (inst){INST_PLUS};
-  } else if (sv_eq(inst_name,cstr_as_string_view("jmp"))){
-    line = sv_trim_left(line);
-    return (inst){INST_JMP,sv_to_int(op)};
-  }else{
-    fprintf(stderr,"ERROR:Unkonw instruction %.*s ",inst_name.count,inst_name.data);
-  }
-
-  return MAKE_INST_NOP;
-}
-
-void translate_src(string_view src,
-                     vm* machine,
-                     label_table* lt){
-  while (src.count> 0){
-    assert(machine->program_size < PROGRAM_CAPACITY);
-    string_view line =sv_trim(  sv_chop_by_delim(&src,'\n'));
-    if (line.count > 0 && *line.data!='#'){
-      const inst ins = translate_line(machine,lt,line);
-      machine->program[machine->program_size++] = ins;
-    }
-  }
-  print_label_table(lt);
 }
 
 void translate_source(string_view src,
@@ -260,27 +173,28 @@ void translate_source(string_view src,
             inst_name.count-1,
             inst_name.data
         };
-        label_table_push(lt,label,machine->program_size);
+        label_table_push_label(lt,label,machine->program_size);
 
         inst_name = sv_trim( sv_chop_by_delim(&line,' '));
       }
       string_view op = sv_trim(sv_chop_by_delim(&line,'#'));
+
       if (inst_name.count >0) {
-        if (sv_eq(inst_name, cstr_as_string_view("push"))) {
+        if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_PUSH)))) {
           machine->program[machine->program_size++] = (inst) {
               INST_PUSH,
               sv_to_int(op)
           };
-        } else if (sv_eq(inst_name, cstr_as_string_view("dup"))) {
+        } else if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_DUP)))) {
           machine->program[machine->program_size++] = (inst) {
               INST_DUP,
               sv_to_int(op)
           };
-        } else if (sv_eq(inst_name, cstr_as_string_view("plus"))) {
+        } else if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_ADDI)))) {
           machine->program[machine->program_size++] = (inst) {
-              INST_PLUS
+              INST_ADDI
           };
-        } else if (sv_eq(inst_name, cstr_as_string_view("jmp"))) {
+        } else if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_JMP)))) {
           if (op.count > 0 && isdigit(*(op.data))) {
             machine->program[machine->program_size++] = (inst) {
                 INST_JMP,
@@ -292,11 +206,16 @@ void translate_source(string_view src,
                 INST_JMP,
             };
           }
-        } else if (sv_eq(inst_name, cstr_as_string_view("nop"))) {
+        } else if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_NOP)))) {
           machine->program[machine->program_size++] = (inst) {
               INST_NOP,
           };
-        } else {
+        } else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_ADDF)))){
+          machine->program[machine->program_size++] = (inst){
+            INST_ADDF
+          };
+        }
+        else {
           fprintf(stderr, "ERROR:Unkonw instruction %.*s ", inst_name.count, inst_name.data);
           exit(-1);
         }
@@ -305,40 +224,9 @@ void translate_source(string_view src,
     }
   //Second pass
   for (int i = 0; i <lt->unresolved_size ; ++i) {
-   word address = label_table_find(lt,lt->unresolved_labels[i].name);
-   machine->program[lt->unresolved_labels[i].addr].operand = address;
+   word address = label_table_find_addr(lt,lt->unresolved_labels[i].name);
+   machine->program[lt->unresolved_labels[i].addr].operand.as_u64 = address;
   }
-}
-
-string_view slurp_file(const char* file_name){
-  FILE* file= fopen(file_name,"rb");
-  if (file == NULL){
-    fprintf(stderr,"ERROR:Could not open file %s :%s\n",file_name,strerror(errno));
-    exit(-1);
-  }
-  if (fseek(file,0,SEEK_END)< 0){
-    fprintf(stderr,"ERROR:Could not read file %s :%s\n",file_name,strerror(errno));
-    exit(-1);
-  }
-  int pos = ftell(file);
-  if (pos <0){
-    fprintf(stderr,"ERROR:Could not read file %s :%s\n",file_name,strerror(errno));
-    exit(-1);
-  }
-  if (fseek(file,0,SEEK_SET) <0){
-    fprintf(stderr,"ERROR:Could not read file %s :%s\n",file_name,strerror(errno));
-    exit(-1);
-  }
-
-  char* buffer = malloc(pos);
-
-  size_t n = fread(buffer,1,pos,file);
-  if (ferror(file)){
-    fprintf(stderr,"ERROR:Could not read file %s :%s\n",file_name,strerror(errno));
-    exit(-1);
-  }
-  fclose(file);
-  return (string_view){n,buffer};
 }
 
 err_t vm_execute_program(vm* machine,int limit){

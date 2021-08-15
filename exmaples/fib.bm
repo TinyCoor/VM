@@ -3,9 +3,9 @@
     nop
     nop
 #This is comment
-    push 0
-    push 1
+    addi 0
+    addi 1
 loop: dup 1
       dup 1
-      plus
+      add
       jmp loop

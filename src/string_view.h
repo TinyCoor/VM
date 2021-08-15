@@ -11,7 +11,7 @@
 
 typedef struct{
   size_t count;
-  char *data;
+  const char *data;
 }string_view;
 
 string_view cstr_as_string_view(const char* cstr);
