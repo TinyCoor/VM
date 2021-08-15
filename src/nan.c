@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include <assert.h>
 
 #define INSPECT_VALUE(type,value,label)                           \
 {                                                           \
@@ -121,12 +122,11 @@ int main(int argc,char** argv){
   values[values_size++] = box_double(3.14159265359);
   values[values_size++] =box_integer(12345678LL);
   values[values_size++] = box_pointer(&x);
-  for (size_t i =0; i<values_size;++i){
-    printf("%d: is_double == %d\n",i,is_double(values[i]));
-    printf("%d: is_integer == %d\n",i,is_integer(values[i]));
-    printf("%d: is_pointer == %d\n",i,is_pointer(values[i]));
-    printf("\n");
-  }
+
+  assert(values[0] ==as_double(values[0]));
+  assert(12345678LL == as_integer(values[1]));
+  assert(&x == as_pointer(values[2]));
+
 
   return 0;
 }
