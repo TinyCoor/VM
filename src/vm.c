@@ -3,8 +3,7 @@
 //
 
 #include "vm.h"
-
-
+#include "utils.h"
 void push_inst(vm* machine,inst ins){
   assert(machine->program_size <PROGRAM_CAPACITY);
   machine->program[machine->program_size++] = ins;
@@ -144,20 +143,7 @@ err_t vm_execute_inst(vm* machine){
   return ERR_OK;
 }
 
-void vm_dump_stack(FILE * stream,const vm* machine){
-  printf("Stack:\n");
-  if (machine->stack_size >0) {
-    for (size_t i = 0; i < machine->stack_size; ++i) {
-      fprintf(stream,"%lu %lf %ld %p\n",
-              machine->stack[i].as_u64,
-              machine->stack[i].as_f64,
-              machine->stack[i].as_i64,
-              machine->stack[i].as_ptr);
-    }
-  } else{
-    fprintf(stream,"[empty]\n");
-  }
-}
+
 
 void translate_source(string_view src,
                        vm* machine,
@@ -177,13 +163,14 @@ void translate_source(string_view src,
 
         inst_name = sv_trim( sv_chop_by_delim(&line,' '));
       }
+
       string_view op = sv_trim(sv_chop_by_delim(&line,'#'));
 
       if (inst_name.count >0) {
         if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_PUSH)))) {
           machine->program[machine->program_size++] = (inst) {
               INST_PUSH,
-              sv_to_int(op)
+              number_liter_as_word(op)
           };
         } else if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_DUP)))) {
           machine->program[machine->program_size++] = (inst) {
@@ -213,6 +200,14 @@ void translate_source(string_view src,
         } else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_ADDF)))){
           machine->program[machine->program_size++] = (inst){
             INST_ADDF
+          };
+        } else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_HALT)))){
+          machine->program[machine->program_size++] = (inst){
+            INST_HALT
+          };
+        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_DIVF)))){
+          machine->program[machine->program_size++] = (inst){
+              INST_DIVF
           };
         }
         else {

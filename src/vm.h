@@ -72,4 +72,6 @@ void translate_source(string_view src,
                       vm *machine,
                       label_table *lt);
 
+
+
 #endif //VM__INSTRUCTION_H
