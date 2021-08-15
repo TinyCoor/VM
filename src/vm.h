@@ -31,6 +31,7 @@
 #define MAKE_INST_JMP(addr) ((inst){.type = INST_JMP,.operand=(addr)})
 #define MAKE_INST_DUP(addr) ((inst){.type = INST_DUP,.operand=(addr)})
 #define MAKE_INST_HALT(addr) ((inst){.type = INST_HALT,.operand=(addr)})
+
 typedef uint64_t inst_addr;
 
 

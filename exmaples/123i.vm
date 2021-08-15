@@ -1,4 +1,6 @@
 push 1
 push 2
-addi
-
+push 3
+addf
+addf
+halt

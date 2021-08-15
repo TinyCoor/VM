@@ -5,7 +5,6 @@
 #ifndef VM_SRC_LABEL_H
 #define VM_SRC_LABEL_H
 #include "string_view.h"
-#include "types.h"
 
 #define LABEL_CAPACITY 1024
 #define UNRESOLVED_LABEL_CAPACITY 1024

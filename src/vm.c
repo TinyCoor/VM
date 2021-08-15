@@ -224,7 +224,7 @@ void translate_source(string_view src,
     }
   //Second pass
   for (int i = 0; i <lt->unresolved_size ; ++i) {
-   word address = label_table_find_addr(lt,lt->unresolved_labels[i].name);
+   inst_addr address = label_table_find_addr(lt,lt->unresolved_labels[i].name);
    machine->program[lt->unresolved_labels[i].addr].operand.as_u64 = address;
   }
 }
