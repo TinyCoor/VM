@@ -4,6 +4,7 @@
 
 #include "vm.h"
 #include "utils.h"
+
 void push_inst(vm* machine,inst ins){
   assert(machine->program_size <PROGRAM_CAPACITY);
   machine->program[machine->program_size++] = ins;
@@ -23,7 +24,7 @@ err_t vm_execute_inst(vm* machine){
       return ERR_STACK_OVERFLOW;
     }
     machine->ip +=1;
-    machine->stack[machine->stack_size++]=vm_inst.operand;
+    machine->stack[machine->stack_size++] = vm_inst.operand;
   }break;
   case INST_ADDI: {
     if (machine->stack_size <2){
@@ -135,15 +136,22 @@ err_t vm_execute_inst(vm* machine){
     machine->stack_size+=1;
     machine->ip +=1;
   }break;
-
+  case INST_SWAP:{
+    if (machine->stack_size < 2){
+      return ERR_STACK_UNDERFLOW;
+    }
+    Word t =machine->stack[machine->stack_size-1];
+    machine->stack[machine->stack_size-1] = machine->stack[machine->stack_size-2];
+    machine->stack[machine->stack_size-2] =t;
+    machine->stack_size += 1;
+    machine->ip +=1;
+  }break;
   case AMOUNT_OF_INSTS:
   default:
     return ERR_ILLEGAL_INST;
   }
   return ERR_OK;
 }
-
-
 
 void translate_source(string_view src,
                        vm* machine,
@@ -170,22 +178,22 @@ void translate_source(string_view src,
         if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_PUSH)))) {
           machine->program[machine->program_size++] = (inst) {
               INST_PUSH,
-              number_liter_as_word(op)
+              .operand= number_liter_as_word(op)
           };
         } else if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_DUP)))) {
           machine->program[machine->program_size++] = (inst) {
-              INST_DUP,
-              sv_to_int(op)
+              .type = INST_DUP,
+              .operand.as_i64 =sv_to_int(op)
           };
         } else if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_ADDI)))) {
           machine->program[machine->program_size++] = (inst) {
-              INST_ADDI
+              .type = INST_ADDI
           };
         } else if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_JMP)))) {
           if (op.count > 0 && isdigit(*(op.data))) {
             machine->program[machine->program_size++] = (inst) {
                 INST_JMP,
-                sv_to_int(op)
+                .operand.as_i64 = sv_to_int(op)
             };
           } else {
             label_table_push_unresolved_label(lt, op, machine->program_size);
@@ -208,6 +216,23 @@ void translate_source(string_view src,
         }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_DIVF)))){
           machine->program[machine->program_size++] = (inst){
               INST_DIVF
+          };
+        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_MULF)))){
+          machine->program[machine->program_size++] = (inst){
+              INST_MULF
+          };
+        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_SWAP)))){
+          machine->program[machine->program_size++] = (inst){
+              INST_SWAP
+          };
+        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_DIVI)))){
+          machine->program[machine->program_size++] = (inst){
+              INST_DIVI,
+              .operand =number_liter_as_word(op)
+          };
+        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_MULI)))){
+          machine->program[machine->program_size++] = (inst){
+              INST_MULI
           };
         }
         else {

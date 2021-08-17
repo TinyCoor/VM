@@ -21,6 +21,7 @@ typedef enum {
   INST_EQ,
   INST_DUP,
   INST_HALT,
+  INST_SWAP,
   INST_PRINT_DEBUG,
   AMOUNT_OF_INSTS,
 } inst_t;

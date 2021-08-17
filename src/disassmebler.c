@@ -12,11 +12,10 @@ int main(int argc,char* argv[]){
     exit(-1);
   }
   load_program_from_file(&machine,argv[1]);
-
   for (int i = 0; i < machine.program_size; ++i) {
     printf("%s",inst_names(machine.program[i].type));
     if (inst_has_op(machine.program[i].type)){
-      printf(" %ld",machine.program[i].operand.as_i64);
+      printf(" %lld",machine.program[i].operand.as_i64);
     }
     printf("\n");
   }

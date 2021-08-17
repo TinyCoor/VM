@@ -8,4 +8,5 @@
 #include "vm.h"
 Word number_liter_as_word(string_view sv);
 void vm_dump_stack(FILE * stream,const vm* machine);
+
 #endif //VM_SRC_UTILS_H_

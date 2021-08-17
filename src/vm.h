@@ -34,8 +34,6 @@
 
 typedef uint64_t inst_addr;
 
-
-
 typedef union {
   uint64_t as_u64;
   int64_t as_i64;
@@ -61,17 +59,11 @@ typedef struct {
 } vm;
 
 
-
 void push_inst(vm *machine, inst ins);
 
 err_t vm_execute_inst(vm *machine);
 err_t vm_execute_program(vm *machine, int limit);
-void vm_dump_stack(FILE *stream, const vm *machine);
-
 void translate_source(string_view src,
                       vm *machine,
                       label_table *lt);
-
-
-
 #endif //VM__INSTRUCTION_H
