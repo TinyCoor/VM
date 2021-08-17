@@ -21,6 +21,7 @@ const char* inst_type_as_cstr(inst_t inst_type){
     case INST_EQ:{return "INST_EQ";}
     case INST_PRINT_DEBUG:{return "INST_PRINT_DEBUG";}
     case INST_DUP:{return "INST_DUP";}
+    case INST_SWAP:{return "INST_SWAP";}
     case AMOUNT_OF_INSTS:
     default:assert(0&& "inst_type_as_cstr:Unreachable");
   }
@@ -42,8 +43,9 @@ const char* inst_names(inst_t type){
     case INST_HALT:   {return "halt";}
     case INST_JMP_IF: {return "jmp_if";}
     case INST_EQ:     {return "eq";}
+    case INST_SWAP: {return "swap";}
     case INST_PRINT_DEBUG:{return "print_debug";}
-    case INST_DUP:{return "dup";}
+    case INST_DUP:      {return "dup";}
     case AMOUNT_OF_INSTS:
     default:assert(0&& "inst_type_as_cstr:Unreachable");
   }
@@ -53,7 +55,7 @@ const char* inst_names(inst_t type){
 int inst_has_op(inst_t type){
   switch (type) {
     case INST_PUSH: {return 1;}
-    case INST_JMP:{return 1;}
+    case INST_JMP:  {return 1;}
     case INST_JMP_IF:{return 1;}
     case INST_DUP:{return 1;}
     default:{
