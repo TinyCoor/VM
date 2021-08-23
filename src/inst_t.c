@@ -22,6 +22,7 @@ const char* inst_type_as_cstr(inst_t inst_type){
     case INST_PRINT_DEBUG:{return "INST_PRINT_DEBUG";}
     case INST_DUP:{return "INST_DUP";}
     case INST_SWAP:{return "INST_SWAP";}
+    case INST_NOT:{return "INST_NOT";}
     case AMOUNT_OF_INSTS:
     default:assert(0&& "inst_type_as_cstr:Unreachable");
   }
@@ -39,6 +40,7 @@ const char* inst_names(inst_t type){
     case INST_MULF:   {return "mulf";}
     case INST_DIVF:   {return "divf";}
     case INST_SUBF:   {return "subf";}
+    case INST_NOT:    {return "not";}
     case INST_JMP :   {return "jmp";}
     case INST_HALT:   {return "halt";}
     case INST_JMP_IF: {return "jmp_if";}
@@ -58,6 +60,7 @@ int inst_has_op(inst_t type){
     case INST_JMP:  {return 1;}
     case INST_JMP_IF:{return 1;}
     case INST_DUP:{return 1;}
+    case INST_SWAP:{return 1;}
     default:{
       return 0;
     }

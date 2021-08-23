@@ -103,11 +103,11 @@ err_t vm_execute_inst(vm* machine){
       return ERR_STACK_UNDERFLOW;
     }
     if (machine->stack[machine->stack_size-1].as_u64){
-      machine->stack_size-=1;
       machine->ip = vm_inst.operand.as_u64;
     } else{
       machine->ip += 1;
     }
+    machine->stack_size-=1;
   }break;
   case INST_EQ:{
     if (machine->stack_size <2){
@@ -133,18 +133,26 @@ err_t vm_execute_inst(vm* machine){
       return ERR_STACK_UNDERFLOW;
     }
     machine->stack[machine->stack_size] = machine->stack[machine->stack_size-1 -vm_inst.operand.as_u64];
-    machine->stack_size+=1;
-    machine->ip +=1;
+    machine->stack_size += 1;
+    machine->ip += 1;
   }break;
   case INST_SWAP:{
-    if (machine->stack_size < 2){
+    if (vm_inst.operand.as_u64 >= machine->stack_size){
       return ERR_STACK_UNDERFLOW;
     }
-    Word t =machine->stack[machine->stack_size-1];
-    machine->stack[machine->stack_size-1] = machine->stack[machine->stack_size-2];
-    machine->stack[machine->stack_size-2] =t;
-    machine->stack_size += 1;
+    const uint64_t a = machine->stack_size -1;
+    const uint64_t b = machine->stack_size -1 -vm_inst.operand.as_u64;
+    Word t =machine->stack[a];
+    machine->stack[a] = machine->stack[b];
+    machine->stack[b] =t;
     machine->ip +=1;
+  }break;
+  case INST_NOT:{
+    if (machine->stack_size <1){
+      return ERR_STACK_UNDERFLOW;
+    }
+    machine->stack[machine->stack_size-1].as_u64 = !machine->stack[machine->stack_size-1].as_u64;
+    machine->ip += 1;
   }break;
   case AMOUNT_OF_INSTS:
   default:
@@ -183,17 +191,29 @@ void translate_source(string_view src,
         } else if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_DUP)))) {
           machine->program[machine->program_size++] = (inst) {
               .type = INST_DUP,
-              .operand.as_i64 =sv_to_int(op)
+              .operand.as_u64 =sv_to_int(op)
           };
         } else if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_ADDI)))) {
           machine->program[machine->program_size++] = (inst) {
               .type = INST_ADDI
           };
-        } else if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_JMP)))) {
+        } else if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_JMP_IF)))) {
+            if (op.count > 0 && isdigit(*(op.data))) {
+              machine->program[machine->program_size++] = (inst) {
+                  INST_JMP_IF,
+                  .operand.as_u64 = sv_to_int(op)
+              };
+            } else {
+              label_table_push_unresolved_label(lt, op, machine->program_size);
+              machine->program[machine->program_size++] = (inst) {
+                  INST_JMP_IF,
+              };
+            }
+        }else if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_JMP)))) {
           if (op.count > 0 && isdigit(*(op.data))) {
             machine->program[machine->program_size++] = (inst) {
                 INST_JMP,
-                .operand.as_i64 = sv_to_int(op)
+                .operand.as_u64 = sv_to_int(op)
             };
           } else {
             label_table_push_unresolved_label(lt, op, machine->program_size);
@@ -201,13 +221,13 @@ void translate_source(string_view src,
                 INST_JMP,
             };
           }
-        } else if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_NOP)))) {
+        }else if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_NOP)))) {
           machine->program[machine->program_size++] = (inst) {
               INST_NOP,
           };
         } else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_ADDF)))){
           machine->program[machine->program_size++] = (inst){
-            INST_ADDF
+            INST_ADDF,
           };
         } else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_HALT)))){
           machine->program[machine->program_size++] = (inst){
@@ -223,7 +243,8 @@ void translate_source(string_view src,
           };
         }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_SWAP)))){
           machine->program[machine->program_size++] = (inst){
-              INST_SWAP
+              INST_SWAP,
+              .operand ={.as_u64=sv_to_int(op)}
           };
         }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_DIVI)))){
           machine->program[machine->program_size++] = (inst){
@@ -234,7 +255,16 @@ void translate_source(string_view src,
           machine->program[machine->program_size++] = (inst){
               INST_MULI
           };
+        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_NOT)))){
+          machine->program[machine->program_size++] = (inst){
+              INST_NOT
+          };
+        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_EQ)))){
+          machine->program[machine->program_size++] = (inst){
+              INST_EQ
+          };
         }
+
         else {
           fprintf(stderr, "ERROR:Unkonw instruction %.*s ", inst_name.count, inst_name.data);
           exit(-1);

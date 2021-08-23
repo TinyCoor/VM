@@ -20,6 +20,7 @@ typedef enum {
   INST_JMP_IF,
   INST_EQ,
   INST_DUP,
+  INST_NOT,
   INST_HALT,
   INST_SWAP,
   INST_PRINT_DEBUG,
