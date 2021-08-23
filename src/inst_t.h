@@ -23,6 +23,7 @@ typedef enum {
   INST_NOT,
   INST_HALT,
   INST_SWAP,
+  INST_GEF,
   INST_PRINT_DEBUG,
   AMOUNT_OF_INSTS,
 } inst_t;

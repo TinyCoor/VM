@@ -109,6 +109,14 @@ err_t vm_execute_inst(vm* machine){
     }
     machine->stack_size-=1;
   }break;
+  case INST_GEF:{
+    if (machine->stack_size <2){
+      return ERR_STACK_UNDERFLOW;
+    }
+    machine->stack[machine->stack_size-2].as_u64 =machine->stack[machine->stack_size-1].as_f64>= machine->stack[machine->stack_size-2].as_f64;
+    machine->stack_size -=1;
+    machine->ip+=1;
+  }break;
   case INST_EQ:{
     if (machine->stack_size <2){
       return ERR_STACK_UNDERFLOW;
@@ -121,7 +129,11 @@ err_t vm_execute_inst(vm* machine){
     if (machine->stack_size <2){
       return ERR_STACK_UNDERFLOW;
     }
-    printf("%ld\n",machine->stack[machine->stack_size-1].as_u64);
+    fprintf(stdout,"u64:%llu i64: %lld  f64: %lf  ptr: %p\n",
+            machine->stack[machine->stack_size - 1].as_u64,
+            machine->stack[machine->stack_size - 1].as_i64,
+            machine->stack[machine->stack_size - 1].as_f64,
+            machine->stack[machine->stack_size - 1].as_ptr);
     machine->stack_size-=1;
     machine->ip +=1;
   }break;
@@ -263,8 +275,15 @@ void translate_source(string_view src,
           machine->program[machine->program_size++] = (inst){
               INST_EQ
           };
+        } else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_GEF)))){
+          machine->program[machine->program_size++] = (inst){
+              INST_GEF
+          };
+        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_PRINT_DEBUG)))){
+          machine->program[machine->program_size++] = (inst){
+              INST_PRINT_DEBUG
+          };
         }
-
         else {
           fprintf(stderr, "ERROR:Unkonw instruction %.*s ", inst_name.count, inst_name.data);
           exit(-1);
