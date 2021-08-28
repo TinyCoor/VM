@@ -138,6 +138,12 @@ void translate_source(string_view src,
                 INST_CALL,
             };
           }
+        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_FFI)))){
+          machine->program[machine->program_size++] = (inst){
+              INST_FFI,
+              .operand.as_u64 = sv_to_int(op)
+          };
+
         }
         else {
           fprintf(stderr, "ERROR:Unkown instruction %.*s ", inst_name.count, inst_name.data);

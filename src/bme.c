@@ -4,6 +4,7 @@
 #include "vm.h"
 #include "file.h"
 #include "utils.h"
+#include <inttypes.h>
 vm machine={0};
 char* shift(int* argc,char *** argv){
   assert(*argc > 0);
@@ -56,6 +57,9 @@ int main(int argc,char** argv){
   }
   load_program_from_file(&machine,input_file_path);
 
+  push_native_fun(&machine,vm_malloc);
+  push_native_fun(&machine,vm_free);
+
   if (!debug){
     err_t  err = vm_execute_program(&machine,limit);
     vm_dump_stack(stdout,&machine);
@@ -65,7 +69,11 @@ int main(int argc,char** argv){
     }
   } else{
     while (limit!= 0 && !machine.halt) {
-     // vm_dump_stack(stdout,&machine);
+      vm_dump_stack(stdout,&machine);
+      printf("%s %" PRIu64 "\n",
+             inst_names( machine.program[machine.ip].type),
+             machine.program[machine.ip].operand.as_u64
+             );
       getchar();
       err_t err = vm_execute_inst(&machine);
       if (err !=ERR_OK){

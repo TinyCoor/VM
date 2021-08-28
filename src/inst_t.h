@@ -15,6 +15,7 @@ typedef union {
 }Word;
 
 static_assert(sizeof(Word)==8,"Only support x64 Arch");
+
 typedef enum {
   INST_NOP = 0,
   INST_PUSH,
@@ -37,6 +38,7 @@ typedef enum {
   INST_RET,
   INST_DROP,
   INST_CALL,
+  INST_FFI,
   INST_PRINT_DEBUG,
   AMOUNT_OF_INSTS,
 } inst_t;
@@ -46,8 +48,8 @@ typedef struct {
   Word operand;
 } inst;
 
-const char* inst_names(inst_t type);
 
+const char* inst_names(inst_t type);
 const char* inst_type_as_cstr(inst_t inst_type);
 int inst_has_op(inst_t type);
 #endif //VM_SRC_INST_T_H_

@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stdarg.h>
-
+#include <inttypes.h>
 
 Word number_liter_as_word(string_view sv){
   assert(sv.count <1024);
@@ -33,7 +33,8 @@ void vm_dump_stack(FILE * stream,const vm* machine){
   printf("Stack:\n");
   if (machine->stack_size >0) {
     for (size_t i = 0; i < machine->stack_size; ++i) {
-      fprintf(stream,"u64:%llu i64: %lld  f64: %lf  ptr: %p\n",
+      fprintf(stream,
+              "  u64: %" PRIu64 ", i64: %" PRId64 ", f64: %lf, ptr: %p\n",
               machine->stack[i].as_u64,
               machine->stack[i].as_i64,
               machine->stack[i].as_f64,

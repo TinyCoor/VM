@@ -3,13 +3,13 @@
 //
 
 #include "vm.h"
-
+#include <inttypes.h>
 err_t vm_execute_inst(vm* machine){
   if (machine->ip > machine->program_size){
     return ERR_ILLEGAL_INST_ACCESS;
   }
   inst vm_inst= machine->program[machine->ip];
-  printf("current ip:%d current stack_size: %d \n",machine->ip,machine->stack_size);
+ // printf("current ip:%d current stack_size: %d \n",machine->ip,machine->stack_size);
 
   switch (vm_inst.type){
   case INST_NOP:{
@@ -125,7 +125,8 @@ err_t vm_execute_inst(vm* machine){
     if (machine->stack_size <2){
       return ERR_STACK_UNDERFLOW;
     }
-    fprintf(stdout,"u64:%llu i64: %lld  f64: %lf  ptr: %p\n",
+    fprintf(stdout,
+            " u64: %" PRIu64 ", i64: %" PRId64 ", f64: %lf , ptr: %p\n",
             machine->stack[machine->stack_size - 1].as_u64,
             machine->stack[machine->stack_size - 1].as_i64,
             machine->stack[machine->stack_size - 1].as_f64,
@@ -151,6 +152,13 @@ err_t vm_execute_inst(vm* machine){
     machine->stack_size -= 1;
     machine->ip += 1;
   }
+  case INST_FFI:{
+    if (vm_inst.operand.as_u64 > FFI_TABLE_CAPACITY){
+      return ERR_ILLEGAL_OPERAND;
+    }
+    machine->ffi[vm_inst.operand.as_u64](machine);
+    machine->ip  += 1;
+  }break;
   case INST_SWAP:{
     if (vm_inst.operand.as_u64 >= machine->stack_size){
       return ERR_STACK_UNDERFLOW;
