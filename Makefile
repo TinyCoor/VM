@@ -1,10 +1,10 @@
-CFLAGS= -Wall -Wextra -Wswitch-enum -std=c11 -pedantic
+CFLAGS= -Wall -Wextra -Wswitch-enum -std=c11 -O3 -pedantic
 CC = gcc
 
 
 EXAMPLES:=$(patsubst %.basm,%.bm ,$(willcard ./examples/*.basm)
 #EXAMPLES:=find examples/ -name \*.basm | sed "s/\.basm/\.bm"
-.PHONY:all
+.PHONY : all
 
 all:basm debasm bmi
 

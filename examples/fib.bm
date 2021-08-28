@@ -3,23 +3,22 @@ jmp main
 main:
       push 0
       push 1
-      push 100
+      push 20
 loop:
-    swap 2
-    dup 0
-    ffi 4
-    dup 1
-    addi
-    swap 2
-    push 1
-    subi
+      swap 2
+      dup 0
+      ffi 4
+      dup 1
+      addi
+      swap 1
+      swap 2
+      push 1
+      subi
 
-    swap 2
-    swap 1
-    swap 2
+      dup 0
+      push 0
+      eq
+      not
 
-    push 0
-    eq
-    not
-
-    jmp_if loop
+      jmp_if loop
+	  halt
