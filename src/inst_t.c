@@ -14,34 +14,6 @@ int names_to_type(string_view inst_name,inst_t* out){
     return 0;
 }
 
-const char* inst_type_as_cstr(inst_t inst_type){
-  switch (inst_type) {
-    case INST_NOP:{return "INST_NOP";}
-    case INST_PUSH:{return "INST_PUSH";}
-    case INST_ADDI:{return "INST_ADDI";}
-    case INST_MULI:{return "INST_MULI";}
-    case INST_DIVI:{return "INST_DIVI";}
-    case INST_SUBI:{return "INST_SUBI";}
-    case INST_ADDF:{return "INST_ADDF";}
-    case INST_MULF:{return "INST_MULF";}
-    case INST_DIVF:{return "INST_DIVF";}
-    case INST_SUBF:{return "INST_SUBF";}
-    case INST_JMP :{return "INST_JMP";}
-    case INST_HALT:{return "INST_HALT";}
-    case INST_JMP_IF:{return "INST_JMP_IF";}
-    case INST_EQ:{return "INST_EQ";}
-    case INST_DUP:{return "INST_DUP";}
-    case INST_SWAP:{return "INST_SWAP";}
-    case INST_NOT:{return "INST_NOT";}
-    case INST_DROP:{return "INST_DROP";}
-    case INST_RET:{return "INST_RET";}
-    case INST_GEF:{return "INST_GEF";}
-    case INST_FFI:{return "INST_FFI";}
-    case AMOUNT_OF_INSTS:
-    default:assert(0&& "inst_type_as_cstr:Unreachable");
-  }
-}
-
 const char* inst_names(inst_t type){
   switch (type) {
     case INST_NOP:    {return "nop";}
@@ -65,14 +37,32 @@ const char* inst_names(inst_t type){
     case INST_SWAP:   {return "swap";}
     case INST_FFI:    {return "ffi";}
     case INST_DUP:      {return "dup";}
+    case INST_URMOM: {return "urmom";}
     case INST_RET:{return "ret";}
     case AMOUNT_OF_INSTS:
     default:assert(0&& "inst_type_as_cstr:Unreachable");
   }
+    return "";
 }
 
 int inst_has_op(inst_t type){
   switch (type) {
+      case INST_NOP:{return 0;}
+      case INST_ADDI:{return 0;}
+      case INST_SUBI:{return 0;}
+      case INST_MULI:{return 0;}
+      case INST_SUBF:{return 0;}
+      case INST_MULF:{return 0;}
+      case INST_DIVF:{return 0;}
+      case INST_HALT:{return 0;}
+      case INST_RET:{return 0;}
+      case AMOUNT_OF_INSTS:{return 0;}
+      case INST_DROP:{return 0;}
+      case INST_ADDF:{return 0;}
+      case INST_DIVI:{return 0;}
+      case INST_EQ:{return 0;}
+      case INST_GEF:{return 0;}
+      case INST_NOT:{return 0;}
     case INST_PUSH: {return 1;}
     case INST_JMP:  {return 1;}
     case INST_JMP_IF:{return 1;}
@@ -80,8 +70,10 @@ int inst_has_op(inst_t type){
     case INST_SWAP:{return 1;}
     case INST_CALL:{return 1;}
     case INST_FFI:{return 1;}
+    case INST_URMOM:{return 1;}
     default:{
       return 0;
     }
   }
+    return 0;
 }
