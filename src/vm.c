@@ -139,7 +139,7 @@ err_t vm_execute_inst(vm* machine){
     }
     machine->stack_size -= 1;
     machine->ip += 1;
-  }
+  }break;
   case INST_FFI:{
     if (vm_inst.operand.as_u64 > FFI_TABLE_CAPACITY){
       return ERR_ILLEGAL_OPERAND;
