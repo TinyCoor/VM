@@ -159,7 +159,9 @@ err_t vm_execute_inst(vm* machine){
     machine->stack[b] =t;
     machine->ip +=1;
   }break;
-
+  case INST_URMOM:{
+      
+  }break;
   case INST_RET:{
     if (machine->stack_size <1){
       return ERR_STACK_UNDERFLOW;
