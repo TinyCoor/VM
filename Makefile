@@ -3,6 +3,7 @@ CC = gcc
 
 
 EXAMPLES:=$(patsubst %.basm,%.bm ,$(willcard ./examples/*.basm)
+#EXAMPLES:=find examples/ -name \*.basm | sed "s/\.basm/\.bm"
 .PHONY:all
 
 all:basm debasm bmi
