@@ -42,6 +42,7 @@ typedef enum {
   INST_DROP,
   INST_CALL,
   INST_FFI,
+  INST_URMOM,
   AMOUNT_OF_INSTS,
 } inst_t;
 
@@ -52,7 +53,6 @@ typedef struct {
 
 
 const char* inst_names(inst_t type);
-const char* inst_type_as_cstr(inst_t inst_type);
 int  names_to_type(string_view inst_name,inst_t* type);
 
 int inst_has_op(inst_t type);

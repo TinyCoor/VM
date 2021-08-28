@@ -16,7 +16,7 @@ int label_table_find_addr(const label_table* lt,string_view name){
     }
   }
   fprintf(stderr,"ERROR: label %.*s does not exist\n",
-          name.count,name.data);
+          (int)name.count,name.data);
   exit(-1);
   return -1;
 }
@@ -41,11 +41,11 @@ void label_table_push_unresolved_label(label_table* lt,
 void print_label_table(label_table* lt){
   printf("Labels:\n");
   for (int i = 0; i <lt->label_size ; ++i) {
-    printf("%.*s ->%ld\n",lt->labels[i].name.count,lt->labels[i].name.data,lt->labels[i].addr);
+    printf("%.*s ->%lld\n",(int)lt->labels[i].name.count,lt->labels[i].name.data,lt->labels[i].addr);
   }
 
   printf("Unresolved Labels:\n");
   for (int i = 0; i <lt->unresolved_size ; ++i) {
-    printf("%ld ->%.*s\n",lt->unresolved_labels[i].addr,lt->unresolved_labels[i].name.count,lt->unresolved_labels[i].name.data);
+    printf("%lld ->%.*s\n",lt->unresolved_labels[i].addr,(int)lt->unresolved_labels[i].name.count,lt->unresolved_labels[i].name.data);
   }
 }
