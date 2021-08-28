@@ -12,10 +12,12 @@
 void save_program_to_file(inst *program,
                           size_t program_size,
                           const char *file_path);
+
 void load_program_from_file(vm *machine, const char *file_name);
 
 string_view slurp_file(const char *file_name);
 
-void load_program_from_memory(vm *machine, inst *program, size_t program_size);
+void load_program_from_memory(vm *machine, inst *program,
+                              size_t program_size);
 
 #endif //VM_SRC_FILE_H_

@@ -5,6 +5,7 @@
 #include "utils.h"
 #include <assert.h>
 #include <string.h>
+#include <stdarg.h>
 
 
 Word number_liter_as_word(string_view sv){
@@ -42,4 +43,29 @@ void vm_dump_stack(FILE * stream,const vm* machine){
     fprintf(stream,"[empty]\n");
   }
 }
+
+int fmt(char *buf,const char* format,va_list args){
+  char* format_str = buf;
+
+  int flags = 0;
+
+  int var_count = 0; //{} 的个数
+
+  for (const char* p = format;*p !='\0';++p){
+
+  }
+
+}
+
+static char buf[1024];
+const char* format(char* format,...){
+  va_list args;
+  int n=0;
+  va_start(args,format);
+  n = fmt(buf,format,args);
+  va_end(args);
+
+}
+
+
 

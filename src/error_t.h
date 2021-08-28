@@ -15,6 +15,8 @@ typedef enum {
   ERR_ILLEGAL_INST_ACCESS
 } err_t;
 
+
+
 const char *err_as_cstr(err_t trap);
 
 #endif //VM_SRC_ERROR_T_H_
