@@ -1,3 +1,5 @@
+
+
 jmp main ;跳转
 lerpf:
     dup 3

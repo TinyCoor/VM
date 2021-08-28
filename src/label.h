@@ -29,6 +29,7 @@ typedef struct {
 int label_table_find_addr(const label_table*,
                      string_view name);
 
+//TODO label should refered to Word instead of inst_addr
 void label_table_push_label(label_table*,
                       string_view ,
                       inst_addr addr);
