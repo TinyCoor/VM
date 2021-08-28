@@ -16,8 +16,12 @@ endif ()
 
 if (MSVC)
 	message(STATUS This is Msvc compiler)
-else()
+elseif(GNU)
+	add_compile_definitions(-Wall -Werror -g -Wswitch-enum -std=c11 -O3 -pedantic)
 	message(STATUS This is Not Msvc compiler)
+else()
+	add_compile_options(-Wall -Werror -g -Wswitch-enum -std=c11 -O3 -pedantic)
+	message(STATUS Clang Compiler)
 endif ()
 
 set(HEAD
