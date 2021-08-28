@@ -61,6 +61,9 @@ int main(int argc,char** argv){
   push_native_fun(&machine,vm_malloc);      //0
   push_native_fun(&machine,vm_free);        //1
   push_native_fun(&machine,vm_print_f64);   //2
+  push_native_fun(&machine,vm_print_i64);   //3
+  push_native_fun(&machine,vm_print_u64);   //4
+  push_native_fun(&machine,vm_print_ptr);   //5
 
   if (!debug){
     err_t  err = vm_execute_program(&machine,limit);
@@ -88,7 +91,5 @@ int main(int argc,char** argv){
       }
     }
   }
-
-
   return 0;
 }

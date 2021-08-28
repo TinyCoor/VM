@@ -1,0 +1,14 @@
+
+#extern alloc 0
+#extern free 1
+#extern print_f64
+
+jmp main
+
+main:
+    push 420
+    ffi 0
+    dup 0
+    ffi 5
+    ffi 1
+    halt

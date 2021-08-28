@@ -5,6 +5,7 @@
 #include "native_call.h"
 #include "vm.h"
 #include <inttypes.h>
+
 err_t vm_malloc(vm* machine){
   if (machine->stack_size <1){
     return ERR_STACK_UNDERFLOW;
@@ -45,14 +46,16 @@ err_t vm_print_u64(struct vm* machine){
   machine->stack_size -= 1;
   return ERR_OK;
 }
+
 err_t vm_print_ptr(struct vm* machine){
   if (machine->stack_size <1){
     return ERR_STACK_UNDERFLOW;
   }
-  printf("p\n",machine->stack[machine->stack_size-1].as_ptr);
+  printf("%p\n",machine->stack[machine->stack_size-1].as_ptr);
   machine->stack_size -= 1;
   return ERR_OK;
 }
+
 err_t vm_print_i64(struct vm* machine){
   if (machine->stack_size <1){
     return ERR_STACK_UNDERFLOW;

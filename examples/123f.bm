@@ -1,4 +1,7 @@
 push 1.0
 push 2.0
+push 2.0
 addf
+addf
+ffi 2
 halt
