@@ -25,7 +25,7 @@ void translate_source(string_view src,
         inst_name = sv_trim( sv_chop_by_delim(&line,' '));
       }
 
-      string_view op = sv_trim(sv_chop_by_delim(&line,VM_COMMNET_SYMBOL));
+      string_view op = sv_trim(sv_chop_by_delim(&line,' '));
 
       if (inst_name.count >0) {
         if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_PUSH)))) {

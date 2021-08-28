@@ -36,6 +36,7 @@ err_t vm_execute_inst(vm* machine){
     }
     machine->stack[machine->stack_size-2].as_u64 -=machine->stack[machine->stack_size-1].as_u64;
     machine->stack_size -=1;
+    machine->ip += 1;
   }break;
   case INST_MULI: {
     if (machine->stack_size <2){
@@ -106,11 +107,11 @@ err_t vm_execute_inst(vm* machine){
     machine->stack_size-=1;
   }break;
   case INST_GEF:{
-    if (machine->stack_size <2){
+    if (machine->stack_size < 2){
       return ERR_STACK_UNDERFLOW;
     }
-    machine->stack[machine->stack_size-2].as_u64 =machine->stack[machine->stack_size-1].as_f64>= machine->stack[machine->stack_size-2].as_f64;
-    machine->stack_size -=1;
+    machine->stack[machine->stack_size-2].as_u64 =machine->stack[machine->stack_size-1].as_f64 >= machine->stack[machine->stack_size-2].as_f64;
+    machine->stack_size -= 1;
     machine->ip+=1;
   }break;
   case INST_EQ:{
@@ -165,7 +166,6 @@ err_t vm_execute_inst(vm* machine){
     }
     machine->ip = machine->stack[machine->stack_size -1].as_u64;
     machine->stack_size -= 1;
-
   }break;
 
   case INST_CALL:{
@@ -177,10 +177,11 @@ err_t vm_execute_inst(vm* machine){
   }break;
 
   case INST_NOT:{
-    if (machine->stack_size <VM_STACK_CAPACITY){
+    if (machine->stack_size > VM_STACK_CAPACITY){
       return ERR_STACK_OVERFLOW;
     }
-    machine->stack[machine->stack_size-1].as_u64 = !machine->stack[machine->stack_size-1].as_u64;
+    machine->stack[machine->stack_size-1].as_u64 = ! (machine->stack[machine->stack_size-1].as_u64);
+
     machine->ip += 1;
   }break;
   case AMOUNT_OF_INSTS:

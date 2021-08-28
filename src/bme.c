@@ -75,16 +75,16 @@ int main(int argc,char** argv){
   } else{
     while (limit!= 0 && !machine.halt) {
       vm_dump_stack(stdout,&machine);
-      printf("%s %" PRIu64 "\n",
-             inst_names( machine.program[machine.ip].type),
-             machine.program[machine.ip].operand.as_u64
-             );
+
       getchar();
       err_t err = vm_execute_inst(&machine);
+        printf("%s %" PRIu64 "\n",
+               inst_names( machine.program[machine.ip].type),
+               machine.program[machine.ip].operand.as_u64
+        );
       if (err !=ERR_OK){
         fprintf(stderr,"ERROR:%s\n",err_as_cstr(err));
         exit(-1);
-        return err;
       }
       if (limit >0){
         --limit;

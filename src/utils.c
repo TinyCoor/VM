@@ -10,7 +10,7 @@
 
 Word number_liter_as_word(string_view sv){
   assert(sv.count <1024);
-  char cstr[sv.count +1];
+  char cstr[sv.count + 1];
   char* endptr = NULL;
 
   memcpy(cstr,sv.data,sv.count);

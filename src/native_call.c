@@ -33,7 +33,7 @@ err_t vm_print_f64(struct vm* machine){
   if (machine->stack_size <1){
     return ERR_STACK_UNDERFLOW;
   }
-  printf("lf\n",machine->stack[machine->stack_size-1].as_f64);
+  printf("%lf\n",machine->stack[machine->stack_size - 1].as_f64);
   machine->stack_size -= 1;
   return ERR_OK;
 }

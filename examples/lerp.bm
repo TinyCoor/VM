@@ -1,5 +1,4 @@
 jmp main
-
 lerpf:
     dup 3
     dup 3
@@ -9,7 +8,7 @@ lerpf:
     mulf
     addf
 
-#清理栈 clean up
+;清理栈 clean up
     swap 2
     drop
     swap 2
@@ -19,11 +18,11 @@ lerpf:
     ret
 
 main:
-    push 69.0           # a 
-    push 420.0          # b
-    push 0.0            # t
-    push 1.0            # 1
-    push 10.0           # n
+    push 69.0           ; a
+    push 420.0          ; b
+    push 0.0            ; t
+    push 1.0            ; 1
+    push 10.0           ; n
     divf 
 loop:
     dup 3
@@ -39,7 +38,6 @@ loop:
 
     dup 1
     push 1.0
-
     gef 
 
     jmp_if loop

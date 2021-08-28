@@ -15,7 +15,7 @@ int main(int argc,char* argv[]){
   for (int i = 0; i < machine.program_size; ++i) {
     printf("%ld : %s",i,inst_names(machine.program[i].type));
     if (inst_has_op(machine.program[i].type)){
-      printf(" %lld",machine.program[i].operand.as_i64);
+      printf(" %lld",machine.program[i].operand.as_u64);
     }
     printf("\n");
   }
