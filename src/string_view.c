@@ -46,9 +46,8 @@ string_view cstr_as_string_view(const char* cstr){
 
 int sv_to_int(string_view view){
   int result = 0;
-  size_t i =0;
   for (size_t i =0; i<view.count&& isdigit(view.data[i]);++i ){
-    result = result*10+*view.data- '0';
+    result = result * 10 + *view.data- '0';
   }
   return result;
 }
