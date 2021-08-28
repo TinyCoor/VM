@@ -10,11 +10,11 @@ void translate_source(string_view src,
                       vm* machine,
                       label_table* lt){
     machine->program_size = 0;
-    int line_number =0;
+   // int line_number =0;
     while (src.count> 0) {
         assert(machine->program_size < PROGRAM_CAPACITY);
         string_view line = sv_trim(sv_chop_by_delim(&src, '\n'));
-        line_number += 1;
+       // line_number += 1;
         if (line.count > 0 && *line.data != VM_COMMENT_SYMBOL) {
             string_view token = sv_chop_by_delim(&line, ' ');
 
@@ -28,7 +28,6 @@ void translate_source(string_view src,
                 token = sv_trim(sv_chop_by_delim(&line, ' '));
             }
             if (token.count > 0) {
-                //TODO bug fix
                 string_view op = sv_trim(sv_chop_by_delim(&line, VM_COMMENT_SYMBOL));
 
                 inst_t inst_type = INST_NOP;
@@ -41,7 +40,7 @@ void translate_source(string_view src,
                     }
                     machine->program_size++;
                 } else {
-                    fprintf(stderr, "ERROR:Unkown instruction %.*s ", token.count, token.data);
+                    fprintf(stderr, "ERROR:Unkown instruction %.*s ", (int)token.count, token.data);
                     exit(-1);
                 }
             }
@@ -53,5 +52,4 @@ void translate_source(string_view src,
     inst_addr address = label_table_find_addr(lt,lt->unresolved_labels[i].name);
     machine->program[lt->unresolved_labels[i].addr].operand.as_u64 = address;
   }
-
 }
