@@ -1,7 +1,7 @@
 
-#extern alloc 0
-#extern free 1
-#extern print_f64
+;extern alloc 0
+;extern free 1
+;extern print_f64
 
 jmp main
 

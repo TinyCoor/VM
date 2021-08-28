@@ -24,7 +24,7 @@ loop:
     dup 0
     jmp 1oop
 
-#clean up
+;clean up
 drop
 drop
 ffi 2

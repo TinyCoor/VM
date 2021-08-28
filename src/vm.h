@@ -23,7 +23,6 @@
 
 typedef uint64_t inst_addr;
 
-
 typedef struct vm{
   //stack
   Word stack[VM_STACK_CAPACITY];
@@ -43,7 +42,4 @@ typedef struct vm{
 
 err_t vm_execute_inst(vm *machine);
 err_t vm_execute_program(vm *machine, int limit);
-//void translate_source(string_view src,
-//                      vm *machine,
-//                      label_table *lt);
 #endif //VM__INSTRUCTION_H

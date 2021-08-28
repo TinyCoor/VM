@@ -4,13 +4,15 @@
 #include "vm.h"
 #include "utils.h"
 
+#define VM_COMMNET_SYMBOL ';'
+
 void translate_source(string_view src,
                       vm* machine,
                       label_table* lt){
   while (src.count> 0){
     assert(machine->program_size < PROGRAM_CAPACITY);
     string_view line =sv_trim(sv_chop_by_delim(&src,'\n'));
-    if (line.count > 0 && *line.data != '#'){
+    if (line.count > 0 && *line.data != VM_COMMNET_SYMBOL){
       string_view inst_name = sv_chop_by_delim(&line,' ');
 
       if (inst_name.count > 0 && inst_name.data[inst_name.count -1] ==':'){
@@ -23,7 +25,7 @@ void translate_source(string_view src,
         inst_name = sv_trim( sv_chop_by_delim(&line,' '));
       }
 
-      string_view op = sv_trim(sv_chop_by_delim(&line,'#'));
+      string_view op = sv_trim(sv_chop_by_delim(&line,VM_COMMNET_SYMBOL));
 
       if (inst_name.count >0) {
         if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_PUSH)))) {
