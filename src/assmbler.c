@@ -118,10 +118,6 @@ void translate_source(string_view src,
           machine->program[machine->program_size++] = (inst){
               INST_GEF
           };
-        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_PRINT_DEBUG)))){
-          machine->program[machine->program_size++] = (inst){
-              INST_PRINT_DEBUG
-          };
         }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_RET)))){
           machine->program[machine->program_size++] = (inst){
               INST_RET

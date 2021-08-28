@@ -10,6 +10,7 @@ typedef err_t (*native_func)(struct vm*);
 
 err_t vm_malloc(struct vm* );
 err_t vm_free(struct vm*);
+err_t vm_print_debug(struct vm* );
 void push_native_fun(struct vm*,native_func);
 
 #endif //VM_SRC_NATIVE_CALL_H

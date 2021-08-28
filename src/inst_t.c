@@ -19,7 +19,6 @@ const char* inst_type_as_cstr(inst_t inst_type){
     case INST_HALT:{return "INST_HALT";}
     case INST_JMP_IF:{return "INST_JMP_IF";}
     case INST_EQ:{return "INST_EQ";}
-    case INST_PRINT_DEBUG:{return "INST_PRINT_DEBUG";}
     case INST_DUP:{return "INST_DUP";}
     case INST_SWAP:{return "INST_SWAP";}
     case INST_NOT:{return "INST_NOT";}
@@ -54,7 +53,6 @@ const char* inst_names(inst_t type){
     case INST_CALL:   {return "call";}
     case INST_SWAP:   {return "swap";}
     case INST_FFI:    {return "ffi";}
-    case INST_PRINT_DEBUG:{return "print_debug";}
     case INST_DUP:      {return "dup";}
     case INST_RET:{return "ret";}
     case AMOUNT_OF_INSTS:

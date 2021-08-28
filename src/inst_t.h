@@ -39,7 +39,6 @@ typedef enum {
   INST_DROP,
   INST_CALL,
   INST_FFI,
-  INST_PRINT_DEBUG,
   AMOUNT_OF_INSTS,
 } inst_t;
 

@@ -14,7 +14,7 @@ err_t vm_malloc(vm* machine){
   return ERR_OK;
 }
 
- err_t vm_free(struct vm* machine){
+err_t vm_free(struct vm* machine){
   if (machine->stack_size <1){
     return ERR_STACK_UNDERFLOW;
   }
@@ -23,8 +23,11 @@ err_t vm_malloc(vm* machine){
   return ERR_OK;
 }
 
-
 void push_native_fun(vm* machine,native_func func){
   assert(machine->ffi_size < FFI_TABLE_CAPACITY);
   machine->ffi[machine->ffi_size++] = func;
+}
+
+err_t vm_print_debug(struct vm* machine){
+
 }

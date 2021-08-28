@@ -121,19 +121,7 @@ err_t vm_execute_inst(vm* machine){
     machine->stack_size -=1;
     machine->ip+=1;
   }break;
-  case INST_PRINT_DEBUG:{
-    if (machine->stack_size <2){
-      return ERR_STACK_UNDERFLOW;
-    }
-    fprintf(stdout,
-            " u64: %" PRIu64 ", i64: %" PRId64 ", f64: %lf , ptr: %p\n",
-            machine->stack[machine->stack_size - 1].as_u64,
-            machine->stack[machine->stack_size - 1].as_i64,
-            machine->stack[machine->stack_size - 1].as_f64,
-            machine->stack[machine->stack_size - 1].as_ptr);
-    machine->stack_size-=1;
-    machine->ip +=1;
-  }break;
+
   case INST_DUP:{
     if (machine->stack_size >VM_STACK_CAPACITY){
       return ERR_STACK_OVERFLOW;
