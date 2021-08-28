@@ -8,7 +8,7 @@
 #include "string_view.h"
 typedef struct vm vm;
 
-void translate_source(string_view src,
+void assmble_source(const char* ,
                       vm *machine,
                       label_table *lt);
 
