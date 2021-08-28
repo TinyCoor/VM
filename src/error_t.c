@@ -15,4 +15,6 @@ const char* err_as_cstr(err_t trap){
     case ERR_ILLEGAL_INST_ACCESS:{return "ERR_ILLEGAL_INST_ACCESS";}
     default:{assert(0 &&"trap_as_cstr: Unreachable");}
   }
+  return "";
+
 }
