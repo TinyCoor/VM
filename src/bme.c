@@ -57,12 +57,14 @@ int main(int argc,char** argv){
   }
   load_program_from_file(&machine,input_file_path);
 
-  push_native_fun(&machine,vm_malloc);
-  push_native_fun(&machine,vm_free);
+  //TODO some sort of mechanism to load function from dll
+  push_native_fun(&machine,vm_malloc);      //0
+  push_native_fun(&machine,vm_free);        //1
+  push_native_fun(&machine,vm_print_f64);   //2
 
   if (!debug){
     err_t  err = vm_execute_program(&machine,limit);
-    vm_dump_stack(stdout,&machine);
+    //vm_dump_stack(stdout,&machine);
     if (err !=ERR_OK){
       fprintf(stderr,"ERROR:%s\n",err_as_cstr(err));
       exit(-1);

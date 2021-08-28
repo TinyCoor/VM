@@ -1,0 +1,31 @@
+
+extern alloc 0
+extern free 1
+extern print_f64 2
+
+push 4.0
+push 2.0
+push 750000
+
+loop:
+    swap 2
+
+    push 4.0
+    dup 2
+    addf
+    swap 3
+
+    divf
+    subf
+    swap 2
+    push 1
+    subi
+
+    dup 0
+    jmp 1oop
+
+#clean up
+drop
+drop
+ffi 2
+halt

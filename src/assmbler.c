@@ -40,7 +40,35 @@ void translate_source(string_view src,
           machine->program[machine->program_size++] = (inst) {
               .type = INST_ADDI
           };
-        } else if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_JMP_IF)))) {
+        } else if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_SUBI)))) {
+          machine->program[machine->program_size++] = (inst) {
+              .type = INST_SUBI
+          };
+        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_ADDF)))){
+          machine->program[machine->program_size++] = (inst){
+              INST_ADDF,
+          };
+        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_SUBF)))){
+          machine->program[machine->program_size++] = (inst){
+              INST_SUBF,
+          };
+        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_DIVI)))){
+          machine->program[machine->program_size++] = (inst){
+              INST_DIVI
+          };
+        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_MULI)))){
+          machine->program[machine->program_size++] = (inst){
+              INST_MULI
+          };
+        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_DIVF)))){
+          machine->program[machine->program_size++] = (inst){
+              INST_DIVF
+          };
+        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_MULF)))){
+          machine->program[machine->program_size++] = (inst){
+              INST_MULF
+          };
+        }else if (sv_eq(inst_name, cstr_as_string_view(inst_names(INST_JMP_IF)))) {
           if (op.count > 0 && isdigit(*(op.data))) {
             machine->program[machine->program_size++] = (inst) {
                 INST_JMP_IF,
@@ -72,39 +100,14 @@ void translate_source(string_view src,
           machine->program[machine->program_size++] = (inst) {
               INST_DROP,
           };
-        } else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_ADDF)))){
-          machine->program[machine->program_size++] = (inst){
-              INST_ADDF,
-          };
-        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_SUBF)))){
-          machine->program[machine->program_size++] = (inst){
-              INST_SUBF,
-          };
-        } else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_HALT)))){
+        }  else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_HALT)))){
           machine->program[machine->program_size++] = (inst){
               INST_HALT
-          };
-        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_DIVF)))){
-          machine->program[machine->program_size++] = (inst){
-              INST_DIVF
-          };
-        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_MULF)))){
-          machine->program[machine->program_size++] = (inst){
-              INST_MULF
           };
         }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_SWAP)))){
           machine->program[machine->program_size++] = (inst){
               INST_SWAP,
               .operand ={.as_u64=sv_to_int(op)}
-          };
-        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_DIVI)))){
-          machine->program[machine->program_size++] = (inst){
-              INST_DIVI,
-              .operand =number_liter_as_word(op)
-          };
-        }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_MULI)))){
-          machine->program[machine->program_size++] = (inst){
-              INST_MULI
           };
         }else if (sv_eq(inst_name,cstr_as_string_view(inst_names(INST_NOT)))){
           machine->program[machine->program_size++] = (inst){
@@ -139,7 +142,6 @@ void translate_source(string_view src,
               INST_FFI,
               .operand.as_u64 = sv_to_int(op)
           };
-
         }
         else {
           fprintf(stderr, "ERROR:Unkown instruction %.*s ", inst_name.count, inst_name.data);
@@ -148,6 +150,7 @@ void translate_source(string_view src,
       }
     }
   }
+
   //Second pass
   for (int i = 0; i <lt->unresolved_size ; ++i) {
     inst_addr address = label_table_find_addr(lt,lt->unresolved_labels[i].name);
