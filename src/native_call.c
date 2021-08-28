@@ -42,7 +42,7 @@ err_t vm_print_u64(struct vm* machine){
   if (machine->stack_size <1){
     return ERR_STACK_UNDERFLOW;
   }
-  printf("% "PRIu64"\n",machine->stack[machine->stack_size-1].as_u64);
+  printf("%"PRIu64 "\n",(long long unsigned)machine->stack[machine->stack_size-1].as_u64);
   machine->stack_size -= 1;
   return ERR_OK;
 }
