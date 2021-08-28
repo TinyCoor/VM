@@ -22,7 +22,6 @@ int number_liter_as_word(string_view sv,Word* out){
   if (endptr - cstr !=sv.count){
     result.as_f64 = strtod(cstr,&endptr);
     if (endptr -cstr != sv.count){
-      //fprintf(stderr,"ERROR: '%s' is not number literal\n",cstr);
       return 0;
     }
   }
@@ -46,28 +45,6 @@ void vm_dump_stack(FILE * stream,const vm* machine){
   }
 }
 
-int fmt(char *buf,const char* format,va_list args){
-  char* format_str = buf;
-
-  int flags = 0;
-
-  int var_count = 0; //{} 的个数
-
-  for (const char* p = format;*p !='\0';++p){
-
-  }
-
-}
-
-static char buf[1024];
-const char* format(char* format,...){
-  va_list args;
-  int n=0;
-  va_start(args,format);
-  n = fmt(buf,format,args);
-  va_end(args);
-
-}
 
 
 
