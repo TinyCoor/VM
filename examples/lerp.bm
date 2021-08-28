@@ -1,4 +1,3 @@
-
 jmp main
 
 lerpf:
@@ -20,21 +19,28 @@ lerpf:
     ret
 
 main:
-    push 69.0 #15
-    push 420.0
-    push 0.0
+    push 69.0           # a 
+    push 420.0          # b
+    push 0.0            # t
+    push 1.0            # 1
+    push 10.0           # n
+    divf 
+loop:
+    dup 3
+    dup 3
+    dup 3
     call lerpf
     ffi 2
 
-    push 69.0  #18
-    push 420.0
+    swap 1
+    dup 1
+    addf
+    swap 1 
+
+    dup 1
     push 1.0
-    call lerpf
-    ffi 2
 
-    push 69.0
-    push 420.0
-    push 0.5
-    call lerpf
-    ffi 2
+    gef 
+
+    jmp_if loop
     halt

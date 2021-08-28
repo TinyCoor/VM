@@ -16,6 +16,8 @@ typedef union {
 
 static_assert(sizeof(Word)==8,"Only support x64 Arch");
 
+//TODO impl more inst 
+// converter needed  interger -> float float->integer
 typedef enum {
   INST_NOP = 0,
   INST_PUSH,

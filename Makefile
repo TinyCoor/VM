@@ -6,7 +6,7 @@ EXAMPLES:=$(patsubst %.basm,%.bm ,$(willcard ./examples/*.basm)
 #EXAMPLES:=find examples/ -name \*.basm | sed "s/\.basm/\.bm"
 .PHONY : all
 
-all:basm debasm bmi
+all:basm debasm bme
 
 debasm : ./src/disassmebler.c ./src/vm.c  ./src/string_view.c ./src/label.c		
 	$(CC) $(CFLAGS) -o ./build/$@  $^ $(LIBS)
@@ -14,7 +14,7 @@ debasm : ./src/disassmebler.c ./src/vm.c  ./src/string_view.c ./src/label.c
 basm: ./src/main.c ./src/vm.c ./src/string_view.c ./src/label.c
 	$(CC) $(CFLAGS) -o ./build/$@ $^  $(LIBS)
 
-bmi: ./src/bme.c ./src/vm.c ./src/string_view.c ./src/label.c
+bme: ./src/bme.c ./src/vm.c ./src/string_view.c ./src/label.c
 	$(CC) $(CFLAGS) -o ./build/$@ $^  $(LIBS)
 
 .PHONY:examples
