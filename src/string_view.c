@@ -6,13 +6,13 @@
 
 string_view sv_chop_by_delim(string_view* sv,char delim){
   size_t i =0;
-  while (i<sv->count && sv->data[i] != delim){
-    i+=1;
+  while (i < sv->count && sv->data[i] != delim){
+    i += 1;
   }
   string_view result = {i,sv->data};
   if (i < sv->count){
-    sv->count -= i+1;
-    sv->data += i+1;
+    sv->count -= i + 1;
+    sv->data += i + 1 ;
   } else{
     sv->count -= i;
     sv->data += i;
@@ -30,10 +30,10 @@ string_view sv_trim_left(string_view sv){
 
 string_view sv_trim_right(string_view sv){
   size_t i =0;
-  while (i<sv.count && isspace(sv.data[sv.count -1 -i])){
+  while (i<sv.count && isspace(sv.data[sv.count -1 - i])){
     i+=1;
   }
-  return (string_view){sv.count -i,sv.data +i};
+  return (string_view){sv.count -i,sv.data };
 }
 
 string_view sv_trim(string_view sv){

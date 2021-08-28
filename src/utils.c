@@ -8,7 +8,7 @@
 #include <stdarg.h>
 #include <inttypes.h>
 
-Word number_liter_as_word(string_view sv){
+int number_liter_as_word(string_view sv,Word* out){
   assert(sv.count <1024);
   char cstr[sv.count + 1];
   char* endptr = NULL;
@@ -22,11 +22,12 @@ Word number_liter_as_word(string_view sv){
   if (endptr - cstr !=sv.count){
     result.as_f64 = strtod(cstr,&endptr);
     if (endptr -cstr != sv.count){
-      fprintf(stderr,"ERROR: '%s' is not number literal\n",cstr);
-      exit(-1);
+      //fprintf(stderr,"ERROR: '%s' is not number literal\n",cstr);
+      return 0;
     }
   }
-  return result;
+  *out = result;
+  return 1;
 }
 
 void vm_dump_stack(FILE * stream,const vm* machine){

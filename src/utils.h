@@ -6,7 +6,7 @@
 #define VM_SRC_UTILS_H_
 #include "string_view.h"
 #include "vm.h"
-Word number_liter_as_word(string_view sv);
+int number_liter_as_word(string_view sv, Word* out);
 void vm_dump_stack(FILE * stream,const vm* machine);
 
 const char* format(char* format,...);

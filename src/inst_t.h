@@ -4,6 +4,7 @@
 
 #ifndef VM_SRC_INST_T_H_
 #define VM_SRC_INST_T_H_
+#include "string_view.h"
 #include <stdint.h>
 #include <assert.h>
 
@@ -52,5 +53,7 @@ typedef struct {
 
 const char* inst_names(inst_t type);
 const char* inst_type_as_cstr(inst_t inst_type);
+int  names_to_type(string_view inst_name,inst_t* type);
+
 int inst_has_op(inst_t type);
 #endif //VM_SRC_INST_T_H_

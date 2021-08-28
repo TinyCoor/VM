@@ -3,6 +3,17 @@
 //
 #include "inst_t.h"
 #include "assert.h"
+#include "string_view.h"
+int names_to_type(string_view inst_name,inst_t* out){
+    for (inst_t type = (inst_t)0; type < AMOUNT_OF_INSTS;type +=1){
+        if (sv_eq(cstr_as_string_view(inst_names(type)),inst_name)){
+            *out = type;
+            return 1;
+        }
+    }
+    return 0;
+}
+
 const char* inst_type_as_cstr(inst_t inst_type){
   switch (inst_type) {
     case INST_NOP:{return "INST_NOP";}
