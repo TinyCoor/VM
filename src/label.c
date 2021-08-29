@@ -57,3 +57,12 @@ void print_label_table(label_table *lt) {
                lt->deferred_labels[i].name.data);
     }
 }
+
+
+void*  label_table_alloc_memory(label_table* lt,size_t size) {
+    assert(lt->mem_size + size <= MAX_MEM_SIZE);
+    void *result = lt->memory + size;
+    lt->mem_size += size;
+    return result;
+
+}

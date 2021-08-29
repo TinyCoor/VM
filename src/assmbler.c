@@ -14,7 +14,7 @@ void assmble_source(string_view file_path,
                     vm *machine,
                     label_table *lt,
                     size_t level) {
-    string_view original_src = slurp_file(file_path);
+    string_view original_src = label_table_slurp_file(lt,file_path);
     string_view src = original_src;
 
     machine->program_size = 0;
@@ -139,6 +139,4 @@ void assmble_source(string_view file_path,
             exit(-1);
         }
     }
-
-    free((void*)original_src.data);
 }

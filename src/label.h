@@ -9,6 +9,8 @@
 
 #define LABEL_CAPACITY 1024
 #define UNRESOLVED_LABEL_CAPACITY 1024
+#define MAX_MEM_SIZE (1024 * 1024)
+
 typedef uint64_t inst_addr;
 typedef struct {
   string_view name;
@@ -25,8 +27,12 @@ typedef struct {
   size_t label_size;
   deferred_label deferred_labels[UNRESOLVED_LABEL_CAPACITY];
   size_t deferred_size;
+  char memory[MAX_MEM_SIZE];
+  size_t mem_size;
 }label_table;
 
+
+void* label_table_alloc_memory(label_table* lt,size_t size);
 int label_table_resolve_label(const label_table*,
                      string_view name,
                      Word* );

@@ -1,8 +1,6 @@
-%include "../src/vm_lib.h"
+%include "../examples/vm_lib.hasm"
 
-%label N     30
-%label print_u64 4
-
+%label N 30
 jmp main
 
 main:

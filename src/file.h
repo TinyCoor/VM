@@ -15,7 +15,9 @@ void save_program_to_file(inst *program,
 
 void load_program_from_file(vm *machine, const char *file_name);
 
-string_view slurp_file(string_view file_name);
+string_view slurp_file(string_view);
+
+string_view label_table_slurp_file(label_table* lt,string_view file_path);
 
 void load_program_from_memory(vm *machine, inst *program,
                               size_t program_size);

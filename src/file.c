@@ -99,3 +99,45 @@ string_view slurp_file(string_view file_path) {
     free(file_path_cstr);
     return (string_view) {n, buffer};
 }
+
+string_view label_table_slurp_file(label_table* lt,string_view file_path){
+    char *file_path_cstr = label_table_alloc_memory(lt,file_path.count + 1);
+    if (file_path_cstr == NULL) {
+        fprintf(stderr, "ERROR:Could not alloc for file %.*s :%s\n",SV_FORMAT(file_path), strerror(errno));
+        exit(-1);
+    }
+    memcpy(file_path_cstr, file_path.data, file_path.count);
+    file_path_cstr[file_path.count] = '\0';
+    FILE *file = fopen(file_path_cstr, "rb");
+    if (file == NULL) {
+        fprintf(stderr, "ERROR:Could not open file %s :%s\n",
+                file_path_cstr, strerror(errno));
+        exit(-1);
+    }
+    if (fseek(file, 0, SEEK_END) < 0) {
+        fprintf(stderr, "ERROR:Could not open file %s :%s\n", file_path_cstr, strerror(errno));
+        exit(-1);
+    }
+    int pos = ftell(file);
+    if (pos < 0) {
+        fprintf(stderr, "ERROR:Could not open file %s :%s\n",
+                file_path_cstr, strerror(errno));
+        exit(-1);
+    }
+    if (fseek(file, 0, SEEK_SET) < 0) {
+        fprintf(stderr, "ERROR:Could not open file %s :%s\n",
+                file_path_cstr, strerror(errno));
+        exit(-1);
+    }
+
+    char *buffer = label_table_alloc_memory(lt,pos);
+    size_t n = fread(buffer, 1, pos, file);
+    if (ferror(file)) {
+        fprintf(stderr, "ERROR:Could not open file %s :%s\n",
+                file_path_cstr, strerror(errno));
+        exit(-1);
+    }
+    fclose(file);
+    free(file_path_cstr);
+    return (string_view) {n, buffer};
+}

@@ -1,7 +1,8 @@
+%include "./examples/vm_lib.hasm"
 push 1
 push 2
 push 3
 addi
 addi
-ffi 3
+ffi print_u64
 halt
