@@ -8,8 +8,9 @@
 #include "string_view.h"
 typedef struct vm vm;
 
-void assmble_source(const char* ,
+void assmble_source(string_view ,
                       vm *machine,
-                      label_table *lt);
+                      label_table *lt,
+                      size_t level);
 
 #endif //VM__PARSER_H

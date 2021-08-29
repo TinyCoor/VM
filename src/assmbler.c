@@ -1,20 +1,25 @@
 //
 // Created by xm on 2021/8/27.
 //
+
 #include "vm.h"
 #include "utils.h"
 #include "file.h"
 
-#define VM_COMMENT_SYMBOL ';'
 const char COMMET_TYPE_SYMBOL =';';
 const char PRE_PROCESSOR_SYMBOL = '%';
+const size_t MAX_INCLUE_LEVEL =10;
 
-void assmble_source(const char *file_path,
+void assmble_source(string_view file_path,
                     vm *machine,
-                    label_table *lt) {
-    string_view src = slurp_file(file_path);
+                    label_table *lt,
+                    size_t level) {
+    string_view original_src = slurp_file(file_path);
+    string_view src = original_src;
+
     machine->program_size = 0;
     int line_number = 0;
+
     while (src.count > 0) {
         assert(machine->program_size < PROGRAM_CAPACITY);
         string_view line = sv_trim(sv_chop_by_delim(&src, '\n'));
@@ -33,26 +38,46 @@ void assmble_source(const char *file_path,
                         string_view label_name = sv_chop_by_delim(&line, ' ');
                         Word word ={0};
                         if(!number_liter_as_word(label_name,&word)){
-                            fprintf(stderr, "%s:%d:  %.*s is not a number \n ",
-                                    file_path, line_number,(int)label_name.count,label_name.data);
-                            exit(-1);
+                            err_to_std(stderr,
+                                       cstr_as_string_view("%.*s:%d: %.*s is not a number \n "),
+                                       file_path,
+                                       label_name
+                                       );
                         }
                         if (!label_table_bind_label(lt,label,word)){
-                            fprintf(stderr, "%s:%d: ERROR label  %.*s is binded \n ",
-                                    file_path, line_number,
+                            fprintf(stderr, "%.*s:%d: ERROR label  %.*s is binded \n ",
+                                    (int)file_path.count,file_path.data, line_number,
                                     (int)label.count,label.data);
                             exit(-1);
                         }
                     } else {
-                        fprintf(stderr, "%s:%d: ERROR label is not provided \n ",
-                                file_path, line_number);
+                        fprintf(stderr, "%.*s:%d: ERROR label is not provided \n ",
+                                (int)file_path.count,file_path.data, line_number);
                         exit(-1);
                     }
-                } else {
-                    fprintf(stderr, "%s:%d: ERROR:Unkown pre-process directive %.*s \n",
-                            file_path, line_number,
-                            (int) token.count,
-                            token.data);
+                } else if(sv_eq(token, cstr_as_string_view("include"))){
+                    line = sv_trim(line);
+                    if (line.count > 0) {
+                        if (*line.data == '\"' && line.data[line.count -1] == '\"'){
+                            line.data += 1;
+                            line.count -= 2;
+                            if (level +1 >MAX_INCLUE_LEVEL){
+                                fprintf(stderr, "%.*s:%d: exceeded max include level\n ",
+                                SV_FORMAT(file_path),line_number);
+                                exit(-1);
+                            }
+                            //遞歸
+                            assmble_source(line,machine,lt,level +1);
+                        }
+                    } else{
+                        fprintf(stderr, "%.*s:%d: ERROR include file path has surround with " "\n ",
+                        SV_FORMAT(file_path),line_number);
+                        exit(-1);
+                    }
+
+                }else {
+                    fprintf(stderr, "%.*s:%d: ERROR:Unkown pre-process directive %.*s \n",
+                    SV_FORMAT(file_path),line_number,SV_FORMAT(token));
                     exit(-1);
                 }
             } else {
@@ -63,9 +88,9 @@ void assmble_source(const char *file_path,
                             .data = token.data
                     };
                     if (!label_table_bind_label(lt,label,(Word){ .as_u64 = machine->program_size})){
-                        fprintf(stderr, "%s:%d: ERROR label  %.*s is binded \n ",
-                                file_path, line_number,
-                                (int)label.count,label.data);
+                        fprintf(stderr, "%.*s:%d: ERROR label  %.*s is binded \n ",
+                        SV_FORMAT(file_path), line_number,
+                        SV_FORMAT(label));
                         exit(-1);
                     }
 
@@ -82,9 +107,9 @@ void assmble_source(const char *file_path,
                         if (inst_has_op(inst_type)) {
                             if (op.count == 0) {
                                 fprintf(stderr,
-                                        "%s:%d: ERROR:instruction Error %.*s  requires an operand",
-                                        file_path, line_number,
-                                        (int) token.count, token.data);
+                                        "%.*s:%d: ERROR:instruction Error %.*s  requires an operand",
+                                SV_FORMAT(file_path), line_number,
+                                 SV_FORMAT( token));
                                 exit(-1);
                             }
                             if (!number_liter_as_word(op, &machine->program[machine->program_size].operand)) {
@@ -93,8 +118,8 @@ void assmble_source(const char *file_path,
                         }
                         machine->program_size++;
                     } else {
-                        fprintf(stderr, "%s:%d: ERROR:Unkown instruction %.*s ",
-                                file_path, line_number, (int) token.count, token.data);
+                        fprintf(stderr, "%.*s:%d: ERROR:Unkown instruction %.*s ",
+                        SV_FORMAT(file_path), line_number, SV_FORMAT(token));
                         exit(-1);
                     }
                 }
@@ -109,9 +134,11 @@ void assmble_source(const char *file_path,
                                       lt->deferred_labels[i].name,
                                       &machine->program[lt->deferred_labels[i].addr].operand)){
            //TODO need to report location in the source code
-            fprintf(stderr, "%s : ERROR:Unkown label %.*s ",
-                    file_path, (int) label.count, label.data);
+            fprintf(stderr, "%.*s : ERROR:Unkown label %.*s ",
+            SV_FORMAT(file_path), (int) label.count, label.data);
             exit(-1);
         }
     }
+
+    free((void*)original_src.data);
 }
