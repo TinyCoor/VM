@@ -3,7 +3,8 @@
 //
 #include "string_view.h"
 #include<ctype.h>
-
+string_view sv_trim_left(string_view sv);
+string_view sv_trim_right(string_view sv);
 string_view sv_chop_by_delim(string_view* sv,char delim){
   size_t i =0;
   while (i < sv->count && sv->data[i] != delim){
