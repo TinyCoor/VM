@@ -6,6 +6,8 @@
 #include "file.h"
 
 #define VM_COMMENT_SYMBOL ';'
+const char COMMET_TYPE_SYMBOL =';';
+const char PRE_PROCESSOR_SYMBOL = '%';
 
 void assmble_source(const char *file_path,
                     vm *machine,
@@ -17,19 +19,17 @@ void assmble_source(const char *file_path,
         assert(machine->program_size < PROGRAM_CAPACITY);
         string_view line = sv_trim(sv_chop_by_delim(&src, '\n'));
         line_number += 1;
-        if (line.count > 0 && *line.data != VM_COMMENT_SYMBOL) {
+        if (line.count > 0 && *line.data != COMMET_TYPE_SYMBOL) {
             string_view token = sv_chop_by_delim(&line, ' ');
             //Pre-process
-            if (token.count > 0 && *token.data == '#') {
+            if (token.count > 0 && *token.data == PRE_PROCESSOR_SYMBOL) {
                 token.count -= 1;
                 token.data += 1;
-                token = sv_trim(token);
-                string_view directive = sv_chop_by_delim(&token, ' ');
-                if (sv_eq(directive, cstr_as_string_view("label"))) {
-                   // token = sv_trim(token);
+                if (sv_eq(token, cstr_as_string_view("label"))) {
+                    line = sv_trim(line);
                     string_view label = sv_chop_by_delim(&line, ' ');
                     if (label.count > 0) {
-                        //token = sv_trim(token);
+                        line = sv_trim(line);
                         string_view label_name = sv_chop_by_delim(&line, ' ');
                         Word word ={0};
                         if(!number_liter_as_word(label_name,&word)){
@@ -39,16 +39,15 @@ void assmble_source(const char *file_path,
                         }
                         label_table_push_label(lt,label,word.as_u64);
                     } else {
-                        fprintf(stderr, "%s:%d: ERROR label is not provided %.*s \n ",
-                                file_path, line_number,
-                                (int)token.count,token.data);
+                        fprintf(stderr, "%s:%d: ERROR label is not provided \n ",
+                                file_path, line_number);
                         exit(-1);
                     }
                 } else {
                     fprintf(stderr, "%s:%d: ERROR:Unkown pre-process directive %.*s \n",
                             file_path, line_number,
-                            (int) directive.count,
-                            directive.data);
+                            (int) token.count,
+                            token.data);
                     exit(-1);
                 }
             } else {
@@ -65,7 +64,7 @@ void assmble_source(const char *file_path,
 
                 //Instruction
                 if (token.count > 0) {
-                    string_view op = sv_trim(sv_chop_by_delim(&line, VM_COMMENT_SYMBOL));
+                    string_view op = sv_trim(sv_chop_by_delim(&line, COMMET_TYPE_SYMBOL));
 
                     inst_t inst_type = INST_NOP;
                     if (names_to_type(token, &inst_type)) {
