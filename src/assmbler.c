@@ -37,7 +37,12 @@ void assmble_source(const char *file_path,
                                     file_path, line_number,(int)label_name.count,label_name.data);
                             exit(-1);
                         }
-                        label_table_push_label(lt,label,word.as_u64);
+                        if (!label_table_bind_label(lt,label,word)){
+                            fprintf(stderr, "%s:%d: ERROR label  %.*s is binded \n ",
+                                    file_path, line_number,
+                                    (int)label.count,label.data);
+                            exit(-1);
+                        }
                     } else {
                         fprintf(stderr, "%s:%d: ERROR label is not provided \n ",
                                 file_path, line_number);
@@ -57,7 +62,12 @@ void assmble_source(const char *file_path,
                             .count = token.count - 1,
                             .data = token.data
                     };
-                    label_table_push_label(lt, label, machine->program_size);
+                    if (!label_table_bind_label(lt,label,(Word){ .as_u64 = machine->program_size})){
+                        fprintf(stderr, "%s:%d: ERROR label  %.*s is binded \n ",
+                                file_path, line_number,
+                                (int)label.count,label.data);
+                        exit(-1);
+                    }
 
                     token = sv_trim(sv_chop_by_delim(&line, ' '));
                 }
@@ -78,7 +88,7 @@ void assmble_source(const char *file_path,
                                 exit(-1);
                             }
                             if (!number_liter_as_word(op, &machine->program[machine->program_size].operand)) {
-                                label_table_push_unresolved_label(lt, op, machine->program_size);
+                                label_table_push_deferred_label(lt, op, machine->program_size);
                             }
                         }
                         machine->program_size++;
@@ -91,9 +101,17 @@ void assmble_source(const char *file_path,
             }
         }
     }
+
     //Second pass
-    for (int i = 0; i < lt->unresolved_size; ++i) {
-        inst_addr address = label_table_find_addr(lt, lt->unresolved_labels[i].name);
-        machine->program[lt->unresolved_labels[i].addr].operand.as_u64 = address;
+    for (int i = 0; i < lt->deferred_size; ++i) {
+        string_view label  =lt->deferred_labels[i].name;
+        if (!label_table_resolve_label(lt,
+                                      lt->deferred_labels[i].name,
+                                      &machine->program[lt->deferred_labels[i].addr].operand)){
+           //TODO need to report location in the source code
+            fprintf(stderr, "%s : ERROR:Unkown label %.*s ",
+                    file_path, (int) label.count, label.data);
+            exit(-1);
+        }
     }
 }
