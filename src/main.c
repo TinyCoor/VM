@@ -29,5 +29,5 @@ int main(int argc, char *argv[]) {
 
     assmble_source(cstr_as_string_view(input_file_path), &machine, &lt, 0);
     save_program_to_file(machine.program, machine.program_size, output_file_path);
-    printf("consume %lld bytes", lt.mem_size);
+    printf("%lld bytes used\n", lt.mem_size);
 }

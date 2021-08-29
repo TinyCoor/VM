@@ -138,6 +138,5 @@ string_view label_table_slurp_file(label_table* lt,string_view file_path){
         exit(-1);
     }
     fclose(file);
-    free(file_path_cstr);
     return (string_view) {n, buffer};
 }
