@@ -5,12 +5,12 @@
 #include "utils.h"
 #include <assert.h>
 #include <string.h>
-#include <stdarg.h>
 #include <inttypes.h>
+const size_t MAX_CAPACITY = 1023;
 
 int number_liter_as_word(string_view sv,Word* out){
-  assert(sv.count <1024);
-  char cstr[sv.count + 1];
+  assert(sv.count < MAX_CAPACITY);
+  char cstr[MAX_CAPACITY + 1];
   char* endptr = NULL;
 
   memcpy(cstr,sv.data,sv.count);
@@ -44,6 +44,13 @@ void vm_dump_stack(FILE * stream,const vm* machine){
     fprintf(stream,"[empty]\n");
   }
 }
+
+void err_to_std(FILE* stream,string_view fmt,string_view file ,string_view err_info){
+    fprintf(stream, fmt.data,
+            (int)file.count,file.data, (int)err_info.count,err_info.data);
+    exit(-1);
+}
+
 
 
 

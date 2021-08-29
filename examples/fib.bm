@@ -1,3 +1,4 @@
+%include "../src/vm_lib.h"
 
 %label N     30
 %label print_u64 4
