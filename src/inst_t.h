@@ -42,7 +42,11 @@ typedef enum {
   INST_DROP,
   INST_CALL,
   INST_FFI,
-  INST_URMOM,
+  INST_ANDB,
+  INST_ORB,
+  INST_XORB,
+  INST_SHL,
+  INST_SHR,
   AMOUNT_OF_INSTS,
 } inst_t;
 
