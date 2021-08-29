@@ -159,8 +159,54 @@ err_t vm_execute_inst(vm* machine){
     machine->stack[b] =t;
     machine->ip +=1;
   }break;
-  case INST_URMOM:{
-      
+  case INST_ANDB:{
+      if (machine->stack_size <2){
+          return ERR_STACK_UNDERFLOW;
+      }
+
+      machine->stack[machine->stack_size -2 ].as_u64 = machine->stack[machine->stack_size -2].as_u64
+                                                       & machine->stack[machine->stack_size -1].as_u64;
+      machine->stack_size -= 1;
+      machine->ip += 1;
+  }break;
+  case INST_XORB:{
+      if (machine->stack_size <2){
+          return ERR_STACK_UNDERFLOW;
+      }
+
+      machine->stack[machine->stack_size -2 ].as_u64 = machine->stack[machine->stack_size -2].as_u64
+              ^ machine->stack[machine->stack_size -1].as_u64;
+      machine->stack_size -= 1;
+      machine->ip += 1;
+  }break;
+  case INST_SHR:{
+      if (machine->stack_size <2){
+          return ERR_STACK_UNDERFLOW;
+      }
+
+      machine->stack[machine->stack_size -2 ].as_u64 = machine->stack[machine->stack_size -2].as_u64
+              >> machine->stack[machine->stack_size -1].as_u64;
+      machine->stack_size -= 1;
+      machine->ip += 1;
+  }break;
+  case INST_SHL:{
+      if (machine->stack_size <2){
+          return ERR_STACK_UNDERFLOW;
+      }
+
+      machine->stack[machine->stack_size -2 ].as_u64 = machine->stack[machine->stack_size -2].as_u64 <<
+                                                                                       machine->stack[machine->stack_size -1].as_u64;
+      machine->stack_size -= 1;
+      machine->ip += 1;
+  }break;
+  case INST_ORB:{
+      if (machine->stack_size <2){
+          return ERR_STACK_UNDERFLOW;
+      }
+      machine->stack[machine->stack_size -2 ].as_u64 = machine->stack[machine->stack_size -2].as_u64 |
+                                                                                                     machine->stack[machine->stack_size -1].as_u64;
+      machine->stack_size -= 1;
+      machine->ip += 1;
   }break;
   case INST_RET:{
     if (machine->stack_size <1){
