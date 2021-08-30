@@ -30,18 +30,18 @@ void load_program_from_file(vm *machine, const char *file_name) {
         fprintf(stderr, "ERROR:Could not read file %s :%s\n", file_name, strerror(errno));
         exit(-1);
     }
-    int pos = ftell(file);
+    long pos = ftell(file);
     if (pos < 0) {
         fprintf(stderr, "ERROR:Could not read file %s :%s\n", file_name, strerror(errno));
         exit(-1);
     }
-    assert(pos % sizeof(machine->program[0]) == 0);
+    assert((unsigned long long int) pos % sizeof(machine->program[0]) == 0);
     assert(pos <= PROGRAM_CAPACITY * sizeof(machine->program[0]));
     if (fseek(file, 0, SEEK_SET) < 0) {
         fprintf(stderr, "ERROR:Could not read file %s :%s\n", file_name, strerror(errno));
         exit(-1);
     }
-    machine->program_size = fread(machine->program, sizeof(machine->program[0]), pos / sizeof(machine->program[0]),
+    machine->program_size = fread(machine->program, sizeof(machine->program[0]), (size_t)pos / sizeof(machine->program[0]),
                                   file);
     if (ferror(file)) {
         fprintf(stderr, "ERROR:Could not read file %s :%s\n", file_name, strerror(errno));
@@ -75,7 +75,7 @@ string_view slurp_file(string_view file_path) {
         fprintf(stderr, "ERROR:Could not open file %s :%s\n", file_path_cstr, strerror(errno));
         exit(-1);
     }
-    int pos = ftell(file);
+    long pos = ftell(file);
     if (pos < 0) {
         fprintf(stderr, "ERROR:Could not open file %s :%s\n",
                 file_path_cstr, strerror(errno));
@@ -87,9 +87,9 @@ string_view slurp_file(string_view file_path) {
         exit(-1);
     }
 
-    char *buffer = malloc(pos);
+    char *buffer = malloc((size_t)pos);
 
-    size_t n = fread(buffer, 1, pos, file);
+    size_t n = fread(buffer, 1, (size_t)pos, file);
     if (ferror(file)) {
         fprintf(stderr, "ERROR:Could not open file %s :%s\n",
                 file_path_cstr, strerror(errno));
@@ -130,8 +130,8 @@ string_view label_table_slurp_file(label_table* lt,string_view file_path){
         exit(-1);
     }
 
-    char *buffer = label_table_alloc_memory(lt,pos);
-    size_t n = fread(buffer, 1, pos, file);
+    char *buffer = label_table_alloc_memory(lt,(size_t)pos);
+    size_t n = fread(buffer, 1, (size_t)pos, file);
     if (ferror(file)) {
         fprintf(stderr, "ERROR:Could not open file %s :%s\n",
                 file_path_cstr, strerror(errno));
