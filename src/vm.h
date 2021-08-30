@@ -20,8 +20,10 @@
 #define VM_STACK_CAPACITY 1024
 #define PROGRAM_CAPACITY 1024
 #define FFI_TABLE_CAPACITY 1024
+#define MAX_STATIC_MEM (640 * 1000)
 
 typedef uint64_t inst_addr;
+typedef uint64_t mem_addr;
 
 typedef struct vm{
   //stack
@@ -37,7 +39,9 @@ typedef struct vm{
   native_func ffi[FFI_TABLE_CAPACITY];
   size_t ffi_size;
 
-  int halt;
+  uint8_t static_memory[MAX_STATIC_MEM];
+
+  bool halt;
 } vm;
 
 err_t vm_execute_inst(vm *machine);

@@ -5,9 +5,6 @@
 #include "label.h"
 #include <stdio.h>
 #include <assert.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 
 int label_table_resolve_label(const label_table *lt,
                               string_view name,

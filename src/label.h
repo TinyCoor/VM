@@ -12,6 +12,7 @@
 #define MAX_MEM_SIZE (1024 * 1024)
 
 typedef uint64_t inst_addr;
+
 typedef struct {
   string_view name;
   Word word;

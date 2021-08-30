@@ -9,7 +9,6 @@ err_t vm_execute_inst(vm* machine){
     return ERR_ILLEGAL_INST_ACCESS;
   }
   inst vm_inst= machine->program[machine->ip];
- // printf("current ip:%d current stack_size: %d \n",machine->ip,machine->stack_size);
 
   switch (vm_inst.type){
   case INST_NOP:{
@@ -122,7 +121,6 @@ err_t vm_execute_inst(vm* machine){
     machine->stack_size -=1;
     machine->ip+=1;
   }break;
-
   case INST_DUP:{
     if (machine->stack_size >VM_STACK_CAPACITY){
       return ERR_STACK_OVERFLOW;
@@ -215,7 +213,6 @@ err_t vm_execute_inst(vm* machine){
     machine->ip = machine->stack[machine->stack_size -1].as_u64;
     machine->stack_size -= 1;
   }break;
-
   case INST_CALL:{
     if (machine->stack_size <1){
       return ERR_STACK_UNDERFLOW;
@@ -223,7 +220,6 @@ err_t vm_execute_inst(vm* machine){
     machine->stack[machine->stack_size++].as_u64 =  machine->ip + 1;
     machine->ip =vm_inst.operand.as_u64;
   }break;
-
   case INST_NOT:{
     if (machine->stack_size > VM_STACK_CAPACITY){
       return ERR_STACK_OVERFLOW;
@@ -232,13 +228,81 @@ err_t vm_execute_inst(vm* machine){
 
     machine->ip += 1;
   }break;
+  case INST_NOTB:{
+      if (machine->stack_size > VM_STACK_CAPACITY){
+          return ERR_STACK_OVERFLOW;
+      }
+      machine->stack[machine->stack_size-1].as_u64 = ~(machine->stack[machine->stack_size-1].as_u64);
+
+      machine->ip += 1;
+  }
+  case INST_READ8:{
+      if (machine->stack_size < 1){
+          return ERR_STACK_UNDERFLOW;
+      }
+      mem_addr addr = machine->stack[machine->stack_size -1].as_u64;
+      if (addr > MAX_STATIC_MEM){
+          return ERR_ILLEGAL_MEM_ACCESS;
+      }
+      machine->stack[machine->stack_size -1].as_u64 = machine->static_memory[addr];
+  }break;
+  case INST_READ16:{
+      if (machine->stack_size < 1){
+          return ERR_STACK_UNDERFLOW;
+      }
+      mem_addr addr = machine->stack[machine->stack_size -1].as_u64;
+      if (addr  >= MAX_STATIC_MEM - 1){
+          return ERR_ILLEGAL_MEM_ACCESS;
+      }
+      machine->stack[machine->stack_size -1].as_u64 =*(uint16_t*)&machine->static_memory[addr];
+  }break;
+  case INST_READ32:{
+      if (machine->stack_size < 1){
+          return ERR_STACK_UNDERFLOW;
+      }
+      mem_addr addr = machine->stack[machine->stack_size -1].as_u64;
+      if (addr  >= MAX_STATIC_MEM - 3){
+          return ERR_ILLEGAL_MEM_ACCESS;
+      }
+      machine->stack[machine->stack_size -1].as_u64 =*(uint32_t*)&machine->static_memory[addr];
+  }break;
+  case INST_READ64:{
+      if (machine->stack_size < 1){
+          return ERR_STACK_UNDERFLOW;
+      }
+      mem_addr addr = machine->stack[machine->stack_size -1].as_u64;
+      if (addr  >= MAX_STATIC_MEM - 7){
+          return ERR_ILLEGAL_MEM_ACCESS;
+      }
+      machine->stack[machine->stack_size -1].as_u64 =*(uint64_t*)&machine->static_memory[addr];
+  }break;
+  case INST_WRITE8:{
+      if (machine->stack_size < 2){
+          return ERR_STACK_UNDERFLOW;
+      }
+      mem_addr addr = machine->stack[machine->stack_size - 2].as_u64;
+      if (addr > MAX_STATIC_MEM){
+          return ERR_ILLEGAL_MEM_ACCESS;
+      }
+      machine->static_memory[addr] = (uint8_t)machine->stack[machine->stack_size -1].as_u64;
+      machine->stack_size -= 2;
+  }break;
+  case INST_WRITE16:{
+
+  }break;
+  case INST_WRITE32:{
+
+  }break;
+  case INST_WRITE64:{
+
+  }break;
   case AMOUNT_OF_INSTS:
   default:
     return ERR_ILLEGAL_INST;
+
   }
   return ERR_OK;
 }
-
 
 err_t vm_execute_program(vm* machine,int limit){
   while (limit!= 0 && !machine->halt) {
