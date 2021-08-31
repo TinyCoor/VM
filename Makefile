@@ -8,13 +8,13 @@ EXAMPLES:=$(patsubst %.basm,%.bm ,$(willcard ./examples/*.basm)
 
 all:basm debasm bme
 
-debasm : ./src/disassmebler.c ./src/vm.c  ./src/string_view.c ./src/label.c		
+debasm : ./src/disassmebler.c ./src/vm.c  ./src/string_view.c src/context.c
 	$(CC) $(CFLAGS) -o ./build/$@  $^ $(LIBS)
 
-basm: ./src/main.c ./src/vm.c ./src/string_view.c ./src/label.c
+basm: ./src/main.c ./src/vm.c ./src/string_view.c src/context.c
 	$(CC) $(CFLAGS) -o ./build/$@ $^  $(LIBS)
 
-bme: ./src/bme.c ./src/vm.c ./src/string_view.c ./src/label.c
+bme: ./src/bme.c ./src/vm.c ./src/string_view.c src/context.c
 	$(CC) $(CFLAGS) -o ./build/$@ $^  $(LIBS)
 
 .PHONY:examples

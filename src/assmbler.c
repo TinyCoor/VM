@@ -12,17 +12,16 @@ const char* BIND_SYMBOL ="bind";
 const size_t MAX_INCLUE_LEVEL =10;
 
 void assmble_source(string_view file_path,
-                    vm *machine,
-                    label_table *lt,
+                    context *ctx,
                     size_t level) {
-    string_view original_src = label_table_slurp_file(lt,file_path);
+    string_view original_src = ctx_slurp_file(ctx,file_path);
     string_view src = original_src;
 
-    machine->program_size = 0;
+    ctx->program_size = 0;
+    ctx->memory_capacity = 0;
     int line_number = 0;
 
     while (src.count > 0) {
-        assert(machine->program_size < PROGRAM_CAPACITY);
         string_view line = sv_trim(sv_chop_by_delim(&src, '\n'));
         line_number += 1;
         if (line.count > 0 && *line.data != COMMET_TYPE_SYMBOL) {
@@ -44,7 +43,7 @@ void assmble_source(string_view file_path,
                                     (int)label.count,label.data);
                             exit(-1);
                         }
-                        if (!label_table_bind_label(lt,label,word)){
+                        if (!ctx_bind_label(ctx,label,word)){
                             fprintf(stderr, "%.*s:%d: ERROR name %.*s is binded \n ",
                                     (int)file_path.count,file_path.data, line_number,
                                     (int)label.count,label.data);
@@ -67,7 +66,7 @@ void assmble_source(string_view file_path,
                                 exit(-1);
                             }
                             //遞歸
-                            assmble_source(line,machine,lt,level +1);
+                            assmble_source(line,ctx,level +1);
                         }
                     } else{
                         fprintf(stderr, "%.*s:%d: ERROR include file path has surround with " "\n ",
@@ -87,7 +86,7 @@ void assmble_source(string_view file_path,
                             .count = token.count - 1,
                             .data = token.data
                     };
-                    if (!label_table_bind_label(lt,label,(Word){ .as_u64 = machine->program_size})){
+                    if (!ctx_bind_label(ctx,label,(Word){ .as_u64 = ctx->program_size})){
                         fprintf(stderr, "%.*s:%d: ERROR label  %.*s is binded \n ",
                         SV_FORMAT(file_path), line_number,
                         SV_FORMAT(label));
@@ -103,7 +102,8 @@ void assmble_source(string_view file_path,
 
                     inst_t inst_type = INST_NOP;
                     if (names_to_type(token, &inst_type)) {
-                        machine->program[machine->program_size].type = inst_type;
+                        assert(ctx->program_size < PROGRAM_CAPACITY);
+                        ctx->program[ctx->program_size].type = inst_type;
                         if (inst_has_op(inst_type)) {
                             if (op.count == 0) {
                                 fprintf(stderr,
@@ -112,11 +112,11 @@ void assmble_source(string_view file_path,
                                  SV_FORMAT( token));
                                 exit(-1);
                             }
-                            if (!number_liter_as_word(op, &machine->program[machine->program_size].operand)) {
-                                label_table_push_deferred_label(lt, op, machine->program_size);
+                            if (!number_liter_as_word(op, &ctx->program[ctx->program_size].operand)) {
+                                ctx_push_deferred_label(ctx, op, ctx->program_size);
                             }
                         }
-                        machine->program_size++;
+                        ctx->program_size++;
                     } else {
                         fprintf(stderr, "%.*s:%d: ERROR:Unkown instruction %.*s ",
                         SV_FORMAT(file_path), line_number, SV_FORMAT(token));
@@ -128,11 +128,11 @@ void assmble_source(string_view file_path,
     }
 
     //Second pass
-    for (int i = 0; i < lt->deferred_size; ++i) {
-        string_view label  =lt->deferred_labels[i].name;
-        if (!label_table_resolve_label(lt,
-                                      lt->deferred_labels[i].name,
-                                      &machine->program[lt->deferred_labels[i].addr].operand)){
+    for (int i = 0; i < ctx->deferred_size; ++i) {
+        string_view label  =ctx->deferred_labels[i].name;
+        if (!ctx_resolve_label(ctx,
+                                      ctx->deferred_labels[i].name,
+                                      &ctx->program[ctx->deferred_labels[i].addr].operand)){
            //TODO need to report location in the source code
             fprintf(stderr, "%.*s : ERROR:Unkown binding %.*s ",
             SV_FORMAT(file_path), (int) label.count, label.data);

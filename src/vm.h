@@ -6,7 +6,7 @@
 #define VM__INSTRUCTION_H
 
 #include "string_view.h"
-#include "label.h"
+#include "context.h"
 #include "inst_t.h"
 #include "error_t.h"
 #include "native_call.h"
@@ -18,9 +18,8 @@
 #include <ctype.h>
 
 #define VM_STACK_CAPACITY 1024
-#define PROGRAM_CAPACITY 1024
 #define FFI_TABLE_CAPACITY 1024
-#define MAX_STATIC_MEM (640 * 1000)
+
 
 typedef uint64_t inst_addr;
 typedef uint64_t mem_addr;
@@ -44,6 +43,8 @@ typedef struct vm{
 
   bool halt;
 } vm;
+
+
 
 err_t vm_execute_inst(vm *machine);
 err_t vm_execute_program(vm *machine, int limit);

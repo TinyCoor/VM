@@ -28,7 +28,7 @@ set(HEAD
         src/string_view.h
         src/vm.h
 		src/assmbler.h
-		src/label.h
+        src/context.h
 		src/inst_t.h
 		src/error_t.h
 		src/native_call.h
@@ -39,7 +39,7 @@ set(SRC
         src/string_view.c
         src/vm.c
 		src/assmbler.c
-        src/label.c
+        src/context.c
 		src/inst_t.c
 		src/native_call.c
 		src/file.h

@@ -4,13 +4,12 @@
 
 #ifndef VM__PARSER_H
 #define VM__PARSER_H
-#include "label.h"
+#include "context.h"
 #include "string_view.h"
-typedef struct vm vm;
+#include "vm.h"
 
 void assmble_source(string_view ,
-                      vm *machine,
-                      label_table *lt,
-                      size_t level);
+                    context*,
+                    size_t);
 
 #endif //VM__PARSER_H

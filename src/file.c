@@ -3,16 +3,14 @@
 //
 #include "file.h"
 
-void save_program_to_file(inst *program,
-                          size_t program_size,
+void save_program_to_file(context * ctx,
                           const char *file_path) {
     FILE *file = fopen(file_path, "wb");
     if (file == NULL) {
         fprintf(stderr, "ERROR:Could not open file %s :%s\n", file_path, strerror(errno));
         exit(-1);
     }
-
-    fwrite(program, sizeof(program[0]), program_size, file);
+    fwrite(ctx->program, sizeof(ctx->program[0]), ctx->program_size, file);
     if (ferror(file)) {
         fprintf(stderr, "ERROR:Could not open file `%s`:%s\n", file_path, strerror(errno));
         exit(-1);
@@ -100,8 +98,8 @@ string_view slurp_file(string_view file_path) {
     return (string_view) {n, buffer};
 }
 
-string_view label_table_slurp_file(label_table* lt,string_view file_path){
-    char *file_path_cstr = label_table_alloc_memory(lt,file_path.count + 1);
+string_view ctx_slurp_file(context * lt,string_view file_path){
+    char *file_path_cstr = ctx_alloc_memory(lt,file_path.count + 1);
     if (file_path_cstr == NULL) {
         fprintf(stderr, "ERROR:Could not alloc for file %.*s :%s\n",SV_FORMAT(file_path), strerror(errno));
         exit(-1);
@@ -130,7 +128,7 @@ string_view label_table_slurp_file(label_table* lt,string_view file_path){
         exit(-1);
     }
 
-    char *buffer = label_table_alloc_memory(lt,(size_t)pos);
+    char *buffer = ctx_alloc_memory(lt,(size_t)pos);
     size_t n = fread(buffer, 1, (size_t)pos, file);
     if (ferror(file)) {
         fprintf(stderr, "ERROR:Could not open file %s :%s\n",

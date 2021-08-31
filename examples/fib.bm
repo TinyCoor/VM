@@ -1,6 +1,6 @@
 %include "../examples/vm_lib.hasm"
 
-%label N 30
+%bind N 30
 jmp main
 
 main:

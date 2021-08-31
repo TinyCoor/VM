@@ -9,15 +9,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void save_program_to_file(inst *program,
-                          size_t program_size,
+//typedef struct {
+//
+//}exec_file;
+
+void save_program_to_file(context * ctx,
                           const char *file_path);
 
 void load_program_from_file(vm *machine, const char *file_name);
 
 string_view slurp_file(string_view);
 
-string_view label_table_slurp_file(label_table* lt,string_view file_path);
+string_view ctx_slurp_file(context * lt,string_view file_path);
 
 void load_program_from_memory(vm *machine, inst *program,
                               size_t program_size);

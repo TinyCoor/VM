@@ -53,6 +53,23 @@ void vm_dump_mem(FILE* stream,const vm* machine){
 }
 
 
+Word u64_to_word(uint64_t value){
+    return (Word){.as_u64 = value  };
+}
+
+Word i64_to_word(int64_t value){
+    return (Word){.as_i64 = value};
+}
+
+Word f64_to_word(double value){
+    return (Word){.as_f64 =value};
+}
+
+Word ptr_to_word(void* value)
+{
+    return (Word){.as_ptr =value};
+}
+
 
 
 
