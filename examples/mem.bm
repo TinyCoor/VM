@@ -1,0 +1,27 @@
+%include "../examples/vm_lib.hasm"
+
+%label N 256
+
+jmp main
+
+main:
+    push 0
+loop:
+    dup 0
+    dup 0
+    write8
+
+    push 1
+    addi
+
+    dup 0
+    push N
+    eq
+    not
+
+    jmp_if loop
+    push 0
+    push N
+    ffi dump_memory
+
+    halt

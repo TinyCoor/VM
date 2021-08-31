@@ -280,7 +280,7 @@ err_t vm_execute_inst(vm* machine){
           return ERR_ILLEGAL_MEM_ACCESS;
       }
       machine->stack[machine->stack_size -1].as_u64 =*(uint64_t*)&machine->static_memory[addr];
-      machine->ip+=1;
+      machine->ip += 1;
   }break;
   case INST_WRITE8:{
       if (machine->stack_size < 2){
@@ -292,7 +292,7 @@ err_t vm_execute_inst(vm* machine){
       }
       machine->static_memory[addr] = (uint8_t)machine->stack[machine->stack_size -1].as_u64;
       machine->stack_size -= 2;
-      machine->ip+=1;
+      machine->ip += 1;
   }break;
   case INST_WRITE16:{
       if (machine->stack_size < 2){
@@ -304,7 +304,7 @@ err_t vm_execute_inst(vm* machine){
       }
       *(uint16_t*)&machine->static_memory[addr] = (uint16_t)machine->stack[machine->stack_size -1].as_u64;
       machine->stack_size -= 2;
-      machine->ip+=1;
+      machine->ip += 1;
   }break;
   case INST_WRITE32:{
       if (machine->stack_size < 2){
@@ -316,7 +316,7 @@ err_t vm_execute_inst(vm* machine){
       }
       *(uint32_t*)&machine->static_memory[addr] = (uint32_t)machine->stack[machine->stack_size -1].as_u64;
       machine->stack_size -= 2;
-      machine->ip+=1;
+      machine->ip += 1;
   }break;
   case INST_WRITE64:{
       if (machine->stack_size < 2){
