@@ -246,7 +246,7 @@ err_t vm_execute_inst(vm* machine){
       if (addr > MAX_STATIC_MEM){
           return ERR_ILLEGAL_MEM_ACCESS;
       }
-      machine->stack[machine->stack_size -1].as_u64 = machine->static_memory[addr];
+      machine->stack[machine->stack_size -1].as_u64 = machine->allocator[addr];
       machine->ip+=1;
   }break;
   case INST_READ16:{
@@ -257,7 +257,7 @@ err_t vm_execute_inst(vm* machine){
       if (addr  >= MAX_STATIC_MEM - 1){
           return ERR_ILLEGAL_MEM_ACCESS;
       }
-      machine->stack[machine->stack_size -1].as_u64 =*(uint16_t*)&machine->static_memory[addr];
+      machine->stack[machine->stack_size -1].as_u64 =*(uint16_t*)&machine->allocator[addr];
       machine->ip+=1;
   }break;
   case INST_READ32:{
@@ -268,7 +268,7 @@ err_t vm_execute_inst(vm* machine){
       if (addr  >= MAX_STATIC_MEM - 3){
           return ERR_ILLEGAL_MEM_ACCESS;
       }
-      machine->stack[machine->stack_size -1].as_u64 =*(uint32_t*)&machine->static_memory[addr];
+      machine->stack[machine->stack_size -1].as_u64 =*(uint32_t*)&machine->allocator[addr];
       machine->ip+=1;
   }break;
   case INST_READ64:{
@@ -279,7 +279,7 @@ err_t vm_execute_inst(vm* machine){
       if (addr  >= MAX_STATIC_MEM - 7){
           return ERR_ILLEGAL_MEM_ACCESS;
       }
-      machine->stack[machine->stack_size -1].as_u64 =*(uint64_t*)&machine->static_memory[addr];
+      machine->stack[machine->stack_size -1].as_u64 =*(uint64_t*)&machine->allocator[addr];
       machine->ip += 1;
   }break;
   case INST_WRITE8:{
@@ -290,7 +290,7 @@ err_t vm_execute_inst(vm* machine){
       if (addr > MAX_STATIC_MEM  ){
           return ERR_ILLEGAL_MEM_ACCESS;
       }
-      machine->static_memory[addr] = (uint8_t)machine->stack[machine->stack_size -1].as_u64;
+      machine->allocator[addr] = (uint8_t)machine->stack[machine->stack_size -1].as_u64;
       machine->stack_size -= 2;
       machine->ip += 1;
   }break;
@@ -302,7 +302,7 @@ err_t vm_execute_inst(vm* machine){
       if (addr > MAX_STATIC_MEM - 1 ){
           return ERR_ILLEGAL_MEM_ACCESS;
       }
-      *(uint16_t*)&machine->static_memory[addr] = (uint16_t)machine->stack[machine->stack_size -1].as_u64;
+      *(uint16_t*)&machine->allocator[addr] = (uint16_t)machine->stack[machine->stack_size -1].as_u64;
       machine->stack_size -= 2;
       machine->ip += 1;
   }break;
@@ -314,7 +314,7 @@ err_t vm_execute_inst(vm* machine){
       if (addr > MAX_STATIC_MEM - 3 ){
           return ERR_ILLEGAL_MEM_ACCESS;
       }
-      *(uint32_t*)&machine->static_memory[addr] = (uint32_t)machine->stack[machine->stack_size -1].as_u64;
+      *(uint32_t*)&machine->allocator[addr] = (uint32_t)machine->stack[machine->stack_size -1].as_u64;
       machine->stack_size -= 2;
       machine->ip += 1;
   }break;
@@ -326,7 +326,7 @@ err_t vm_execute_inst(vm* machine){
       if (addr > MAX_STATIC_MEM - 7 ){
           return ERR_ILLEGAL_MEM_ACCESS;
       }
-      *(uint64_t*)&machine->static_memory[addr] = machine->stack[machine->stack_size -1].as_u64;
+      *(uint64_t*)&machine->allocator[addr] = machine->stack[machine->stack_size -1].as_u64;
       machine->stack_size -= 2;
       machine->ip+=1;
   }break;

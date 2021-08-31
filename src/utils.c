@@ -47,7 +47,7 @@ void vm_dump_stack(FILE * stream,const vm* machine){
 
 void vm_dump_mem(FILE* stream,const vm* machine){
     for (size_t i = 0; i <MAX_STATIC_MEM ; ++i) {
-        printf("%x ",machine->static_memory[i]);
+        printf("%x ",machine->allocator[i]);
     }
     printf("\n");
 }

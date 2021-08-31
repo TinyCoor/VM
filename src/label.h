@@ -15,18 +15,18 @@ typedef uint64_t inst_addr;
 
 typedef struct {
   string_view name;
-  Word word;
-}label_t;
+  Word value;
+}binding;
 
 typedef struct {
   string_view name;
   inst_addr addr;
-}deferred_label;
+}deferred_binding;
 
 typedef struct {
-  label_t labels[LABEL_CAPACITY];
+  binding labels[LABEL_CAPACITY];
   size_t label_size;
-  deferred_label deferred_labels[UNRESOLVED_LABEL_CAPACITY];
+  deferred_binding deferred_labels[UNRESOLVED_LABEL_CAPACITY];
   size_t deferred_size;
   char memory[MAX_MEM_SIZE];
   size_t mem_size;

@@ -80,7 +80,7 @@ err_t vm_dump_memory(struct vm* machine){
     }
 
     for (uint64_t i= 0; i <count ; ++i) {
-        printf("%02X " ,machine->static_memory[addr +i]);
+        printf("%02X " ,machine->allocator[addr +i]);
     }
     printf("\n");
     machine->stack_size -=2;

@@ -8,6 +8,7 @@
 
 const char COMMET_TYPE_SYMBOL =';';
 const char PRE_PROCESSOR_SYMBOL = '%';
+const char* BIND_SYMBOL ="bind";
 const size_t MAX_INCLUE_LEVEL =10;
 
 void assmble_source(string_view file_path,
@@ -30,7 +31,7 @@ void assmble_source(string_view file_path,
             if (token.count > 0 && *token.data == PRE_PROCESSOR_SYMBOL) {
                 token.count -= 1;
                 token.data += 1;
-                if (sv_eq(token, cstr_as_string_view("label"))) {
+                if (sv_eq(token, cstr_as_string_view(BIND_SYMBOL))) {
                     line = sv_trim(line);
                     string_view label = sv_chop_by_delim(&line, ' ');
                     if (label.count > 0) {
@@ -44,7 +45,7 @@ void assmble_source(string_view file_path,
                             exit(-1);
                         }
                         if (!label_table_bind_label(lt,label,word)){
-                            fprintf(stderr, "%.*s:%d: ERROR label  %.*s is binded \n ",
+                            fprintf(stderr, "%.*s:%d: ERROR name %.*s is binded \n ",
                                     (int)file_path.count,file_path.data, line_number,
                                     (int)label.count,label.data);
                             exit(-1);
@@ -80,7 +81,7 @@ void assmble_source(string_view file_path,
                     exit(-1);
                 }
             } else {
-                //Label
+                //Label binding
                 if (token.count > 0 && token.data[token.count - 1] == ':') {
                     string_view label = {
                             .count = token.count - 1,
@@ -133,7 +134,7 @@ void assmble_source(string_view file_path,
                                       lt->deferred_labels[i].name,
                                       &machine->program[lt->deferred_labels[i].addr].operand)){
            //TODO need to report location in the source code
-            fprintf(stderr, "%.*s : ERROR:Unkown label %.*s ",
+            fprintf(stderr, "%.*s : ERROR:Unkown binding %.*s ",
             SV_FORMAT(file_path), (int) label.count, label.data);
             exit(-1);
         }

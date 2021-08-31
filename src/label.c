@@ -11,7 +11,7 @@ int label_table_resolve_label(const label_table *lt,
                               Word *output) {
     for (size_t i = 0; i < lt->label_size; ++i) {
         if (sv_eq(lt->labels[i].name, name)) {
-            *output = lt->labels[i].word;
+            *output = lt->labels[i].value;
             return 1;
         }
     }
@@ -26,7 +26,7 @@ int label_table_bind_label(label_table *lt,
     if (label_table_resolve_label(lt, name, &igonred)) {
         return 0;
     }
-    lt->labels[lt->label_size++] = (label_t) {name, word};
+    lt->labels[lt->label_size++] = (binding) {name, word};
     return 1;
 }
 
@@ -35,7 +35,7 @@ void label_table_push_deferred_label(label_table *lt,
                                      inst_addr addr
 ) {
     assert(lt->deferred_size < UNRESOLVED_LABEL_CAPACITY);
-    lt->deferred_labels[lt->deferred_size++] = (deferred_label) {
+    lt->deferred_labels[lt->deferred_size++] = (deferred_binding) {
             name,
             addr
     };
@@ -45,7 +45,7 @@ void label_table_push_deferred_label(label_table *lt,
 void print_label_table(label_table *lt) {
     printf("Labels:\n");
     for (int i = 0; i < lt->label_size; ++i) {
-        printf("%.*s ->%lld\n", (int) lt->labels[i].name.count, lt->labels[i].name.data, lt->labels[i].word.as_i64);
+        printf("%.*s ->%lld\n", (int) lt->labels[i].name.count, lt->labels[i].name.data, lt->labels[i].value.as_i64);
     }
 
     printf("deferred Labels:\n");

@@ -39,7 +39,8 @@ typedef struct vm{
   native_func ffi[FFI_TABLE_CAPACITY];
   size_t ffi_size;
 
-  uint8_t static_memory[MAX_STATIC_MEM];
+  uint8_t allocator[MAX_STATIC_MEM];
+  size_t allocator_size;
 
   bool halt;
 } vm;
