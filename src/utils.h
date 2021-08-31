@@ -9,7 +9,7 @@
 int number_liter_as_word(string_view sv, Word* out);
 void vm_dump_stack(FILE * stream,const vm* machine);
 
-void err_to_std(FILE* stream,string_view fmt,string_view,string_view);
+void vm_dump_mem(FILE* stream,const vm* machine);
 
 const char* format(char* format,...);
 

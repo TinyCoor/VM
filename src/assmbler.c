@@ -38,11 +38,10 @@ void assmble_source(string_view file_path,
                         string_view label_name = sv_chop_by_delim(&line, ' ');
                         Word word ={0};
                         if(!number_liter_as_word(label_name,&word)){
-                            err_to_std(stderr,
-                                       cstr_as_string_view("%.*s:%d: %.*s is not a number \n "),
-                                       file_path,
-                                       label_name
-                                       );
+                            fprintf(stderr, "%.*s:%d: %.*s is not a number \n ",
+                                    (int)file_path.count,file_path.data, line_number,
+                                    (int)label.count,label.data);
+                            exit(-1);
                         }
                         if (!label_table_bind_label(lt,label,word)){
                             fprintf(stderr, "%.*s:%d: ERROR label  %.*s is binded \n ",

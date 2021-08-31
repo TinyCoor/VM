@@ -1,6 +1,8 @@
 //
 // Created by xm on 2021/7/20.
 //
+//TODO 1:26:14
+
 
 #include "vm.h"
 #include <inttypes.h>
@@ -245,6 +247,7 @@ err_t vm_execute_inst(vm* machine){
           return ERR_ILLEGAL_MEM_ACCESS;
       }
       machine->stack[machine->stack_size -1].as_u64 = machine->static_memory[addr];
+      machine->ip+=1;
   }break;
   case INST_READ16:{
       if (machine->stack_size < 1){
@@ -255,6 +258,7 @@ err_t vm_execute_inst(vm* machine){
           return ERR_ILLEGAL_MEM_ACCESS;
       }
       machine->stack[machine->stack_size -1].as_u64 =*(uint16_t*)&machine->static_memory[addr];
+      machine->ip+=1;
   }break;
   case INST_READ32:{
       if (machine->stack_size < 1){
@@ -265,6 +269,7 @@ err_t vm_execute_inst(vm* machine){
           return ERR_ILLEGAL_MEM_ACCESS;
       }
       machine->stack[machine->stack_size -1].as_u64 =*(uint32_t*)&machine->static_memory[addr];
+      machine->ip+=1;
   }break;
   case INST_READ64:{
       if (machine->stack_size < 1){
@@ -275,26 +280,55 @@ err_t vm_execute_inst(vm* machine){
           return ERR_ILLEGAL_MEM_ACCESS;
       }
       machine->stack[machine->stack_size -1].as_u64 =*(uint64_t*)&machine->static_memory[addr];
+      machine->ip+=1;
   }break;
   case INST_WRITE8:{
       if (machine->stack_size < 2){
           return ERR_STACK_UNDERFLOW;
       }
       mem_addr addr = machine->stack[machine->stack_size - 2].as_u64;
-      if (addr > MAX_STATIC_MEM){
+      if (addr > MAX_STATIC_MEM  ){
           return ERR_ILLEGAL_MEM_ACCESS;
       }
       machine->static_memory[addr] = (uint8_t)machine->stack[machine->stack_size -1].as_u64;
       machine->stack_size -= 2;
+      machine->ip+=1;
   }break;
   case INST_WRITE16:{
-
+      if (machine->stack_size < 2){
+          return ERR_STACK_UNDERFLOW;
+      }
+      mem_addr addr = machine->stack[machine->stack_size - 2].as_u64;
+      if (addr > MAX_STATIC_MEM - 1 ){
+          return ERR_ILLEGAL_MEM_ACCESS;
+      }
+      *(uint16_t*)&machine->static_memory[addr] = (uint16_t)machine->stack[machine->stack_size -1].as_u64;
+      machine->stack_size -= 2;
+      machine->ip+=1;
   }break;
   case INST_WRITE32:{
-
+      if (machine->stack_size < 2){
+          return ERR_STACK_UNDERFLOW;
+      }
+      mem_addr addr = machine->stack[machine->stack_size - 2].as_u64;
+      if (addr > MAX_STATIC_MEM - 3 ){
+          return ERR_ILLEGAL_MEM_ACCESS;
+      }
+      *(uint32_t*)&machine->static_memory[addr] = (uint32_t)machine->stack[machine->stack_size -1].as_u64;
+      machine->stack_size -= 2;
+      machine->ip+=1;
   }break;
   case INST_WRITE64:{
-
+      if (machine->stack_size < 2){
+          return ERR_STACK_UNDERFLOW;
+      }
+      mem_addr addr = machine->stack[machine->stack_size - 2].as_u64;
+      if (addr > MAX_STATIC_MEM - 7 ){
+          return ERR_ILLEGAL_MEM_ACCESS;
+      }
+      *(uint64_t*)&machine->static_memory[addr] = machine->stack[machine->stack_size -1].as_u64;
+      machine->stack_size -= 2;
+      machine->ip+=1;
   }break;
   case AMOUNT_OF_INSTS:
   default:

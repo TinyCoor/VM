@@ -45,10 +45,11 @@ void vm_dump_stack(FILE * stream,const vm* machine){
   }
 }
 
-void err_to_std(FILE* stream,string_view fmt,string_view file ,string_view err_info){
-    fprintf(stream, fmt.data,
-            (int)file.count,file.data, (int)err_info.count,err_info.data);
-    exit(-1);
+void vm_dump_mem(FILE* stream,const vm* machine){
+    for (size_t i = 0; i <MAX_STATIC_MEM ; ++i) {
+        printf("%x ",machine->static_memory[i]);
+    }
+    printf("\n");
 }
 
 
