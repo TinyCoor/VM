@@ -9,20 +9,31 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-//typedef struct {
-//
-//}exec_file;
+#if defined(__GNU__) || defined(__clang__)
+#define PACKED __attribute__((packed))
+#else
+#define PACKED
+#endif
+
+#define MAGIC 0x4d42
+#define VERSION 1
+
+
+typedef struct {
+    uint16_t magic;
+    uint16_t version;
+    uint64_t program_size;
+    uint64_t memory_size;
+    uint64_t memory_capacity;
+}PACKED file_meta_data ;
 
 void save_program_to_file(context * ctx,
                           const char *file_path);
 
-void load_program_from_file(vm *machine, const char *file_name);
+void load_program_from_file(vm*, const char *file_name);
 
 string_view slurp_file(string_view);
 
 string_view ctx_slurp_file(context * lt,string_view file_path);
-
-void load_program_from_memory(vm *machine, inst *program,
-                              size_t program_size);
 
 #endif //VM_SRC_FILE_H_

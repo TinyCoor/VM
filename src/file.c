@@ -10,7 +10,24 @@ void save_program_to_file(context * ctx,
         fprintf(stderr, "ERROR:Could not open file %s :%s\n", file_path, strerror(errno));
         exit(-1);
     }
+    file_meta_data data ={
+            .magic =MAGIC,
+            .version = VERSION,
+            .program_size = ctx->program_size,
+            .memory_size = ctx->memory_size,
+            .memory_capacity = ctx->memory_capacity
+    };
+    fwrite(&data,sizeof(file_meta_data),1,file);
+    if (ferror(file)) {
+        fprintf(stderr, "ERROR:Could not open file `%s`:%s\n", file_path, strerror(errno));
+        exit(-1);
+    }
     fwrite(ctx->program, sizeof(ctx->program[0]), ctx->program_size, file);
+    if (ferror(file)) {
+        fprintf(stderr, "ERROR:Could not open file `%s`:%s\n", file_path, strerror(errno));
+        exit(-1);
+    }
+    fwrite(ctx->memory, sizeof(ctx->memory[0]), ctx->memory_capacity, file);
     if (ferror(file)) {
         fprintf(stderr, "ERROR:Could not open file `%s`:%s\n", file_path, strerror(errno));
         exit(-1);
@@ -24,35 +41,48 @@ void load_program_from_file(vm *machine, const char *file_name) {
         fprintf(stderr, "ERROR:Could not open file %s :%s\n", file_name, strerror(errno));
         exit(-1);
     }
-    if (fseek(file, 0, SEEK_END) < 0) {
-        fprintf(stderr, "ERROR:Could not read file %s :%s\n", file_name, strerror(errno));
+    file_meta_data data ={0};
+    size_t n = fread(&data,sizeof(data),1,file);
+    if (n < 1){
+        fprintf(stderr,"read file error\n");
         exit(-1);
     }
-    long pos = ftell(file);
-    if (pos < 0) {
-        fprintf(stderr, "ERROR:Could not read file %s :%s\n", file_name, strerror(errno));
+    if (data.magic != MAGIC){
+        fprintf(stderr,"not support file format\n");
         exit(-1);
     }
-    assert((unsigned long long int) pos % sizeof(machine->program[0]) == 0);
-    assert(pos <= PROGRAM_CAPACITY * sizeof(machine->program[0]));
-    if (fseek(file, 0, SEEK_SET) < 0) {
-        fprintf(stderr, "ERROR:Could not read file %s :%s\n", file_name, strerror(errno));
+    if (data.version != VERSION){
+        fprintf(stderr,"ERROR: not support version\n");
         exit(-1);
     }
-    machine->program_size = fread(machine->program, sizeof(machine->program[0]), (size_t)pos / sizeof(machine->program[0]),
-                                  file);
-    if (ferror(file)) {
-        fprintf(stderr, "ERROR:Could not read file %s :%s\n", file_name, strerror(errno));
+    if (data.program_size > PROGRAM_CAPACITY){
+        fprintf(stderr,"ERROR: program section too big contans\n");
         exit(-1);
     }
+
+    if (data.memory_capacity > MAX_STATIC_MEM){
+        fprintf(stderr,"ERROR: mem section too big contans\n");
+        exit(-1);
+    }
+
+    if (data.memory_size > data.memory_capacity){
+        fprintf(stderr,"ERROR: mem_size > capacity\n");
+        exit(-1);
+    }
+    machine->program_size = fread(machine->program,sizeof(machine->program[0]),data.program_size,file);
+    if (machine->program_size != data.program_size){
+        fprintf(stderr,"read program error\n");
+        exit(-1);
+    }
+    machine->memory_size = fread(machine->memory,sizeof(machine->memory[0]),data.memory_size,file);
+    if ( machine->memory_size != data.memory_size){
+        fprintf(stderr,"read mem error\n");
+        exit(-1);
+    }
+
     fclose(file);
 }
 
-void load_program_from_memory(vm *machine, inst *program, size_t program_size) {
-    assert(program_size < PROGRAM_CAPACITY);
-    memcpy(machine->program, program, sizeof(inst) * program_size);
-    machine->program_size = program_size;
-}
 
 
 string_view slurp_file(string_view file_path) {

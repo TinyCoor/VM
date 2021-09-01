@@ -29,9 +29,13 @@ typedef struct vm{
   Word stack[VM_STACK_CAPACITY];
   uint64_t stack_size;
 
+inst program[PROGRAM_CAPACITY];
+uint64_t program_size;
+
+uint8_t memory[MAX_STATIC_MEM];
+size_t memory_size;
+size_t memory_capacity;
   //program
-  inst program[PROGRAM_CAPACITY];
-  uint64_t program_size;
   inst_addr ip;
 
   //native_func
@@ -40,7 +44,6 @@ typedef struct vm{
 
   uint8_t allocator[MAX_STATIC_MEM];
   size_t allocator_size;
-
   bool halt;
 } vm;
 

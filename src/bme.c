@@ -5,7 +5,9 @@
 #include "file.h"
 #include "utils.h"
 #include <inttypes.h>
+
 vm machine={0};
+
 char* shift(int* argc,char *** argv){
   assert(*argc > 0);
   char* result = **argv;
