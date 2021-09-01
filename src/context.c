@@ -3,7 +3,7 @@
 //
 
 #include "context.h"
-#include <stdio.h>
+#include "utils.h"
 #include <assert.h>
 
 bool ctx_resolve_label(const context *lt,
@@ -42,12 +42,22 @@ void ctx_push_deferred_label(context *lt,
 }
 
 
+Word ctx_push_string_to_memory(context* ctx, string_view sv){
+    assert(ctx->memory_size + sv.count <= MAX_MEM_SIZE );
 
+    Word result = u64_to_word(ctx->memory_size);
+    memcpy(ctx->memory + ctx->memory_size,sv.data,sv.count);
+    ctx->memory_size += sv.count;
+
+    if (ctx->memory_size > ctx->memory_capacity){
+        ctx->memory_capacity = ctx->memory_size;
+    }
+    return result;
+}
 
 void*  ctx_alloc_memory(context * lt,size_t size) {
     assert(lt->arena_size + size <= MAX_MEM_SIZE);
-    void *result = lt->memory + size;
+    void *result = lt->arena + size;
     lt->arena_size += size;
     return result;
-
 }

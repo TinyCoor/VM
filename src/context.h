@@ -56,6 +56,8 @@ int ctx_bind_label(context *,
                    string_view,
                    Word);
 
+Word ctx_push_string_to_memory(context* , string_view);
+
 void ctx_push_deferred_label(context *,
                              string_view,
                              inst_addr addr);

@@ -15,6 +15,7 @@ err_t vm_print_u64(struct vm* );
 err_t vm_print_ptr(struct vm* );
 err_t vm_print_i64(struct vm* );
 err_t vm_dump_memory(struct vm*);
+err_t vm_write(struct vm*);
 
 void push_native_fun(struct vm*,native_func);
 

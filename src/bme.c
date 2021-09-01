@@ -67,7 +67,7 @@ int main(int argc,char** argv){
   push_native_fun(&machine,vm_print_u64);   //4
   push_native_fun(&machine,vm_print_ptr);   //5
   push_native_fun(&machine,vm_dump_memory); //6
-
+  push_native_fun(&machine,vm_write); //6
   if (!debug){
     err_t  err = vm_execute_program(&machine,limit);
     //vm_dump_stack(stdout,&machine);

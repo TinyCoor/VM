@@ -7,7 +7,9 @@
 #include "string_view.h"
 #include "vm.h"
 
-int number_liter_as_word(string_view sv, Word* out);
+bool translate_literal(context*,string_view sv, Word* out);
+
+//bool translate_literal(context* ,string_view,Word*);
 void vm_dump_stack(FILE * stream,const vm* machine);
 
 void vm_dump_mem(FILE* stream,const vm* machine);

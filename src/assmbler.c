@@ -18,6 +18,7 @@ void assmble_source(string_view file_path,
     string_view src = original_src;
 
     ctx->program_size = 0;
+    ctx->memory_size = 0;
     ctx->memory_capacity = 0;
     int line_number = 0;
 
@@ -35,9 +36,9 @@ void assmble_source(string_view file_path,
                     string_view label = sv_chop_by_delim(&line, ' ');
                     if (label.count > 0) {
                         line = sv_trim(line);
-                        string_view label_name = sv_chop_by_delim(&line, ' ');
+                        string_view value =line;
                         Word word ={0};
-                        if(!number_liter_as_word(label_name,&word)){
+                        if(!translate_literal(ctx,value,&word)){
                             fprintf(stderr, "%.*s:%d: %.*s is not a number \n ",
                                     (int)file_path.count,file_path.data, line_number,
                                     (int)label.count,label.data);
@@ -68,12 +69,11 @@ void assmble_source(string_view file_path,
                             //遞歸
                             assmble_source(line,ctx,level +1);
                         }
-                    } else{
+                    }else{
                         fprintf(stderr, "%.*s:%d: ERROR include file path has surround with " "\n ",
                         SV_FORMAT(file_path),line_number);
                         exit(-1);
                     }
-
                 }else {
                     fprintf(stderr, "%.*s:%d: ERROR:Unkown pre-process directive %.*s \n",
                     SV_FORMAT(file_path),line_number,SV_FORMAT(token));
@@ -112,7 +112,7 @@ void assmble_source(string_view file_path,
                                  SV_FORMAT( token));
                                 exit(-1);
                             }
-                            if (!number_liter_as_word(op, &ctx->program[ctx->program_size].operand)) {
+                            if (!translate_literal(ctx,op, &ctx->program[ctx->program_size].operand)) {
                                 ctx_push_deferred_label(ctx, op, ctx->program_size);
                             }
                         }

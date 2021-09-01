@@ -86,3 +86,22 @@ err_t vm_dump_memory(struct vm* machine){
     machine->stack_size -=2;
     return ERR_OK;
 }
+
+
+err_t vm_write(struct vm* machine){
+    if (machine->stack_size < 2){
+        return ERR_STACK_UNDERFLOW;
+    }
+    mem_addr  addr = machine->stack[machine->stack_size -2].as_u64;
+    uint64_t count = machine->stack[machine->stack_size -1].as_u64;
+    if (addr >= MAX_STATIC_MEM){
+        return ERR_ILLEGAL_MEM_ACCESS;
+    }
+    if (addr +count <addr || addr +count  >= MAX_STATIC_MEM ){
+        return ERR_ILLEGAL_MEM_ACCESS;
+    }
+    fwrite(&machine->memory[addr],sizeof(machine->memory[0]),count,stdout);
+
+    machine->stack_size -= 2;
+    return ERR_OK;
+}

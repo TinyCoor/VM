@@ -74,11 +74,11 @@ void load_program_from_file(vm *machine, const char *file_name) {
         fprintf(stderr,"read program error\n");
         exit(-1);
     }
-    machine->memory_size = fread(machine->memory,sizeof(machine->memory[0]),data.memory_size,file);
-    if ( machine->memory_size != data.memory_size){
-        fprintf(stderr,"read mem error\n");
-        exit(-1);
-    }
+     n = fread(machine->memory,sizeof(machine->memory[0]),data.memory_size,file);
+//    if ( machine->memory_size != data.memory_size){
+//        fprintf(stderr,"read mem error\n");
+//        exit(-1);
+//    }
 
     fclose(file);
 }

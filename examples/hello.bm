@@ -1,0 +1,8 @@
+%include "../examples/vm_lib.hasm"
+
+%bind hello "Hello, World"
+
+push hello
+push 12
+ffi 7
+halt

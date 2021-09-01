@@ -33,7 +33,6 @@ inst program[PROGRAM_CAPACITY];
 uint64_t program_size;
 
 uint8_t memory[MAX_STATIC_MEM];
-size_t memory_size;
 size_t memory_capacity;
   //program
   inst_addr ip;
