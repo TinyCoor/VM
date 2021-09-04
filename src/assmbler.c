@@ -6,10 +6,10 @@
 #include "utils.h"
 #include "file.h"
 
-const char COMMET_TYPE_SYMBOL =';';
-const char PRE_PROCESSOR_SYMBOL = '%';
+#define COMMET_TYPE_SYMBOL  ';'
+#define PRE_PROCESSOR_SYMBOL  '%'
 const char* BIND_SYMBOL ="bind";
-const size_t MAX_INCLUE_LEVEL =10;
+const size_t MAX_INCLUE_LEVEL =60;
 
 void assmble_source(string_view file_path,
                     context *ctx,
