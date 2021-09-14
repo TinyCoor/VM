@@ -21,6 +21,7 @@ const char* inst_names(inst_t type){
         case INST_MULI:     {return "muli";}
         case INST_DIVI:     {return "divi";}
         case INST_SUBI:     {return "subi";}
+        case INST_MODI:     {return "modi";}
         case INST_ADDF:     {return "addf";}
         case INST_MULF:     {return "mulf";}
         case INST_DIVF:     {return "divf";}
@@ -75,6 +76,7 @@ bool inst_has_op(inst_t type){
       case INST_SUBI:{return false;}
       case INST_MULI:{return false;}
       case INST_DIVI:{return false;}
+      case INST_MODI:{return false;}
       ///inst for calc for floating point
       case INST_MULF:{return false;}
       case INST_DIVF:{return false;}

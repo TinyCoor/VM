@@ -19,6 +19,7 @@
 
 
 err_t vm_execute_inst(vm* machine){
+
   if (machine->ip > machine->program_size){
     return ERR_ILLEGAL_INST_ACCESS;
   }
@@ -36,74 +37,26 @@ err_t vm_execute_inst(vm* machine){
     machine->stack[machine->stack_size++] = vm_inst.operand;
   }break;
   ///
-  case INST_ADDI: {
-    if (machine->stack_size <2){
-      return ERR_STACK_UNDERFLOW;
-    }
-    machine->stack[machine->stack_size-2].as_u64 +=machine->stack[machine->stack_size-1].as_u64;
-    machine->stack_size -=1;
-    machine->ip+=1;
-  }break;
-  case INST_SUBI:{
-    if (machine->stack_size <2){
-      return ERR_STACK_UNDERFLOW;
-    }
-    machine->stack[machine->stack_size-2].as_u64 -=machine->stack[machine->stack_size-1].as_u64;
-    machine->stack_size -=1;
-    machine->ip += 1;
-  }break;
-  case INST_MULI: {
-    if (machine->stack_size <2){
-      return ERR_STACK_UNDERFLOW;
-    }
-    machine->stack[machine->stack_size-2].as_u64 *=machine->stack[machine->stack_size-1].as_u64;
-    machine->stack_size -=1;
-    machine->ip+=1;
-  }break;
+  case INST_ADDI: { BINARY_OP(machine,u64,u64,+);}break;
+  case INST_SUBI: { BINARY_OP(machine,u64,u64,-);}break;
+  case INST_MULI: { BINARY_OP(machine,u64,u64,*);}break;
   case INST_DIVI:  {
-    if (machine->stack_size <2){
-      return ERR_STACK_UNDERFLOW;
-    }
     if(machine->stack[machine->stack_size-1].as_u64 ==0){
       return ERR_DIV_BY_ZERO;
     }
-    machine->stack[machine->stack_size-2].as_u64 /=machine->stack[machine->stack_size-1].as_u64;
-    machine->stack_size -=1;
-    machine->ip+=1;
+    BINARY_OP(machine,u64,u64,/);
+  }break;
+  case INST_MODI:  {
+      if(machine->stack[machine->stack_size-1].as_u64 ==0){
+          return ERR_DIV_BY_ZERO;
+      }
+      BINARY_OP(machine,u64,u64,%);
   }break;
   ///
-  case INST_ADDF:{
-    if (machine->stack_size <2){
-      return ERR_STACK_UNDERFLOW;
-    }
-    machine->stack[machine->stack_size-2].as_f64 +=machine->stack[machine->stack_size-1].as_f64;
-    machine->stack_size -= 1;
-    machine->ip += 1;
-  }break;
-  case INST_SUBF:{
-    if (machine->stack_size <2){
-      return ERR_STACK_UNDERFLOW;
-    }
-    machine->stack[machine->stack_size-2].as_f64 -=machine->stack[machine->stack_size-1].as_f64;
-    machine->stack_size -= 1;
-    machine->ip += 1;
-  }break;
-  case INST_MULF:{
-    if (machine->stack_size <2){
-      return ERR_STACK_UNDERFLOW;
-    }
-    machine->stack[machine->stack_size-2].as_f64 *=machine->stack[machine->stack_size-1].as_f64;
-    machine->stack_size -= 1;
-    machine->ip += 1;
-  }break;
-  case INST_DIVF:{
-    if (machine->stack_size <2){
-      return ERR_STACK_UNDERFLOW;
-    }
-    machine->stack[machine->stack_size-2].as_f64 /=machine->stack[machine->stack_size-1].as_f64;
-    machine->stack_size -= 1;
-    machine->ip += 1;
-  }break;
+  case INST_ADDF:{BINARY_OP(machine,f64,f64,+);}break;
+  case INST_SUBF:{BINARY_OP(machine,f64,f64,-);}break;
+  case INST_MULF:{BINARY_OP(machine,f64,f64,*);}break;
+  case INST_DIVF:{BINARY_OP(machine,f64,f64,/);}break;
   ///
   case INST_JMP:{
     machine->ip = vm_inst.operand.as_u64;
@@ -124,7 +77,6 @@ err_t vm_execute_inst(vm* machine){
   }break;
 
   ///
-
   case INST_EQI:{BINARY_OP(machine,u64,u64,==);}break;
   case INST_EQF:{BINARY_OP(machine,f64,u64,==);}break;
   case INST_GTI:{BINARY_OP(machine,u64,u64,>);}break;
@@ -181,58 +133,13 @@ err_t vm_execute_inst(vm* machine){
               return ERR_STACK_OVERFLOW;
           }
           machine->stack[machine->stack_size-1].as_u64 = ~(machine->stack[machine->stack_size-1].as_u64);
-
           machine->ip += 1;
   }break;
-  case INST_ANDB:{
-      if (machine->stack_size <2){
-          return ERR_STACK_UNDERFLOW;
-      }
-
-      machine->stack[machine->stack_size -2 ].as_u64 = machine->stack[machine->stack_size -2].as_u64
-                                                       & machine->stack[machine->stack_size -1].as_u64;
-      machine->stack_size -= 1;
-      machine->ip += 1;
-  }break;
-  case INST_XORB:{
-      if (machine->stack_size <2){
-          return ERR_STACK_UNDERFLOW;
-      }
-
-      machine->stack[machine->stack_size -2 ].as_u64 = machine->stack[machine->stack_size -2].as_u64
-              ^ machine->stack[machine->stack_size -1].as_u64;
-      machine->stack_size -= 1;
-      machine->ip += 1;
-  }break;
-  case INST_SHR:{
-      if (machine->stack_size <2){
-          return ERR_STACK_UNDERFLOW;
-      }
-
-      machine->stack[machine->stack_size -2 ].as_u64 = machine->stack[machine->stack_size -2].as_u64
-              >> machine->stack[machine->stack_size -1].as_u64;
-      machine->stack_size -= 1;
-      machine->ip += 1;
-  }break;
-  case INST_SHL:{
-      if (machine->stack_size <2){
-          return ERR_STACK_UNDERFLOW;
-      }
-
-      machine->stack[machine->stack_size -2 ].as_u64 = machine->stack[machine->stack_size -2].as_u64 <<
-                                                                                       machine->stack[machine->stack_size -1].as_u64;
-      machine->stack_size -= 1;
-      machine->ip += 1;
-  }break;
-  case INST_ORB:{
-      if (machine->stack_size <2){
-          return ERR_STACK_UNDERFLOW;
-      }
-      machine->stack[machine->stack_size -2 ].as_u64 = machine->stack[machine->stack_size -2].as_u64 |
-                                                                                                     machine->stack[machine->stack_size -1].as_u64;
-      machine->stack_size -= 1;
-      machine->ip += 1;
-  }break;
+  case INST_ANDB:{BINARY_OP(machine,u64,u64,&);}break;
+  case INST_XORB:{BINARY_OP(machine,u64,u64,^);}break;
+  case INST_SHR:{BINARY_OP(machine,u64,u64,>>);}break;
+  case INST_SHL:{BINARY_OP(machine,u64,u64,<<);}break;
+  case INST_ORB:{BINARY_OP(machine,u64,u64,|);}break;
 
   case INST_RET:{
     if (machine->stack_size <1){
@@ -252,7 +159,7 @@ err_t vm_execute_inst(vm* machine){
     if (machine->stack_size > VM_STACK_CAPACITY){
       return ERR_STACK_OVERFLOW;
     }
-    machine->stack[machine->stack_size-1].as_u64 = ! (machine->stack[machine->stack_size-1].as_u64);
+    machine->stack[machine->stack_size-1].as_u64 = !(machine->stack[machine->stack_size-1].as_u64);
 
     machine->ip += 1;
   }break;

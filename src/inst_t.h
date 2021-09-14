@@ -27,34 +27,29 @@ typedef enum {
     INST_SUBI,
     INST_MULI,
     INST_DIVI,
+    INST_MODI,
     INST_ADDF,
     INST_SUBF,
     INST_MULF,
     INST_DIVF,
     INST_JMP,
     INST_JMP_IF,
-
     INST_DUP,
     INST_NOT,
     INST_HALT,
     INST_SWAP,
-
-   //
     INST_EQI,
     INST_GEI,
     INST_GTI,
     INST_LTI,
     INST_LEI,
     INST_NEI,
-
-    //
     INST_EQF,
     INST_GEF,
     INST_GTF,
     INST_LTF,
     INST_LEF,
     INST_NEF,
-
     INST_RET,
     INST_DROP,
     INST_CALL,

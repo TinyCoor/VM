@@ -7,6 +7,7 @@ CFLAGS = "-Wall -Wextra -Wswitch-enum -fno-strict-aliasing -pedantic -Wmissing-p
 LIB_SRC ="./src/inst.c ./src/vm.c ./src/label.c ./src/string_view.c
 ./src/error_t.c ./src/file.c ./src/native_call.c ./src/utils.c"
 LIBS =
+
 $CC $CFLAGS -o basm ./src/basm.c ${LIB_SRC}   $LIBS
 $CC $CFLAGS -o bme ./src/bmi.c ${LIB_SRC} $LIBS
 $CC $CFLAGS -o debasm ./src/disassmebler.c ${LIB_SRC}  $LIBS
