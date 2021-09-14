@@ -68,6 +68,11 @@ typedef enum {
     INST_WRITE16,
     INST_WRITE32,
     INST_WRITE64,
+
+    INST_I2F,
+    INST_U2F,
+    INST_F2I,
+    INST_F2U,
     AMOUNT_OF_INSTS,
 } inst_t;
 

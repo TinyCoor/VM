@@ -57,7 +57,7 @@ Word ctx_push_string_to_memory(context* ctx, string_view sv){
 
 void*  ctx_alloc_memory(context * lt,size_t size) {
     assert(lt->arena_size + size <= MAX_MEM_SIZE);
-    void *result = lt->arena + size;
-    lt->arena_size += size;
+    void *result = lt->arena + lt->arena_size;
+    lt->arena_size +=size;
     return result;
 }

@@ -1,0 +1,19 @@
+%include "../examples/vm_lib.hasm"
+
+push 3.1415
+f2i
+ffi print_i64
+
+push 3.1415
+f2u
+ffi print_u64
+
+push -1.0
+f2i
+ffi print_i64
+
+push -1.0
+f2u
+ffi print_u64
+
+halt

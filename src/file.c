@@ -128,6 +128,7 @@ string_view slurp_file(string_view file_path) {
     return (string_view) {n, buffer};
 }
 
+//TODO there is a bug in this
 string_view ctx_slurp_file(context * lt,string_view file_path){
     char *file_path_cstr = ctx_alloc_memory(lt,file_path.count + 1);
     if (file_path_cstr == NULL) {

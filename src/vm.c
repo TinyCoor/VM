@@ -10,10 +10,17 @@
          if ((machine)->stack_size <2){               \
             return ERR_STACK_UNDERFLOW;                 \
             }                                               \
-        (machine)->stack[machine->stack_size -2 ].as_##output_type = (machine)->stack[machine->stack_size -2].as_##input_type \
-                                                 op (machine)->stack[machine->stack_size -1].as_##input_type;   \
+        (machine)->stack[machine->stack_size -2 ].as_##output_type = (machine)->stack[(machine)->stack_size -2].as_##input_type \
+                                                 op (machine)->stack[(machine)->stack_size -1].as_##input_type;   \
         (machine)->stack_size -= 1;                                               \
         (machine)->ip += 1;                                                       \
+    }while(false)
+
+#define CAST_OP(machine,src,dst,cast)                       \
+    do{                                                         \
+        if((machine)->stack_size <1) return ERR_STACK_UNDERFLOW;  \
+        (machine)->stack[machine->stack_size - 1].as_##dst = cast (machine)->stack[(machine)->stack_size-1].as_##src; \
+        (machine)->ip +=1;                                    \
     }while(false)
 
 
@@ -90,7 +97,6 @@ err_t vm_execute_inst(vm* machine){
   case INST_NEI:{BINARY_OP(machine,u64,u64,!=);}break;
   case INST_NEF:{BINARY_OP(machine,f64,u64,!=);}break;
   ///
-  //
   case INST_DUP:{
     if (machine->stack_size >VM_STACK_CAPACITY){
       return ERR_STACK_OVERFLOW;
@@ -164,7 +170,6 @@ err_t vm_execute_inst(vm* machine){
     machine->ip += 1;
   }break;
 
-  ///
   case INST_READ8:{
       if (machine->stack_size < 1){
           return ERR_STACK_UNDERFLOW;
@@ -187,6 +192,7 @@ err_t vm_execute_inst(vm* machine){
       machine->stack[machine->stack_size -1].as_u64 =*(uint16_t*)&machine->allocator[addr];
       machine->ip+=1;
   }break;
+
   case INST_READ32:{
       if (machine->stack_size < 1){
           return ERR_STACK_UNDERFLOW;
@@ -257,11 +263,17 @@ err_t vm_execute_inst(vm* machine){
       machine->stack_size -= 2;
       machine->ip+=1;
   }break;
+
+  //TODO fix bug float to uint64_t and int64_t
+  case INST_F2I:{CAST_OP(machine,f64,i64,(int64_t));}break;
+  case INST_F2U:{CAST_OP(machine,f64,u64,(uint64_t)(int64_t));}break;
+  case INST_I2F:{CAST_OP(machine,i64,f64,(double));}break;
+  case INST_U2F:{CAST_OP(machine,u64,f64,(double));}break;
+
   case AMOUNT_OF_INSTS:
 
   default:
     return ERR_ILLEGAL_INST;
-
   }
   return ERR_OK;
 }

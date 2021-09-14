@@ -9,13 +9,13 @@
 #define COMMET_TYPE_SYMBOL  ';'
 #define PRE_PROCESSOR_SYMBOL  '%'
 const char* BIND_SYMBOL ="bind";
-const size_t MAX_INCLUE_LEVEL =60;
+const size_t MAX_INCLUE_LEVEL =69;
 
 void assmble_source(string_view file_path,
                     context *ctx,
                     size_t level) {
-    string_view original_src = ctx_slurp_file(ctx,file_path);
-    string_view src = original_src;
+    string_view src = ctx_slurp_file(ctx,file_path);
+    //string_view src = original_src;
 
     ctx->program_size = 0;
     ctx->memory_size = 0;
@@ -66,7 +66,7 @@ void assmble_source(string_view file_path,
                                 SV_FORMAT(file_path),line_number);
                                 exit(-1);
                             }
-                            //遞歸
+
                             assmble_source(line,ctx,level +1);
                         }
                     }else{
@@ -92,7 +92,6 @@ void assmble_source(string_view file_path,
                         SV_FORMAT(label));
                         exit(-1);
                     }
-
                     token = sv_trim(sv_chop_by_delim(&line, ' '));
                 }
 

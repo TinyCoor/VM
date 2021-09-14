@@ -8,7 +8,7 @@
 struct vm;
 typedef err_t (*native_func)(struct vm*);
 
-err_t vm_malloc(struct vm* );
+err_t vm_malloc(struct vm*);
 err_t vm_free(struct vm*);
 err_t vm_print_f64(struct vm* );
 err_t vm_print_u64(struct vm* );

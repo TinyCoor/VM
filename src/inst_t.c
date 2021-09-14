@@ -62,6 +62,11 @@ const char* inst_names(inst_t type){
         case INST_WRITE16:{return "write16";}
         case INST_WRITE32:{return "write32";}
         case INST_WRITE64:{return "write64";}
+
+        case INST_I2F:{return "i2f";}
+        case INST_U2F:{return "u2f";}
+        case INST_F2I:{return "f2i";}
+        case INST_F2U:{return "f2u";}
         case AMOUNT_OF_INSTS:
         default:assert(0 && "inst_type_as_cstr:Unreachable");
   }
@@ -126,6 +131,11 @@ bool inst_has_op(inst_t type){
       case INST_WRITE16:{return false;}
       case INST_WRITE32:{return false;}
       case INST_WRITE64:{return false;}
+
+      case INST_I2F:{return false;}
+      case INST_U2F:{return false;}
+      case INST_F2I:{return false;}
+      case INST_F2U:{return false;}
 
       case AMOUNT_OF_INSTS:{return false;}
         default:{

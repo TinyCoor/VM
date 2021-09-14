@@ -42,7 +42,7 @@ err_t vm_print_u64(struct vm* machine){
   if (machine->stack_size <1){
     return ERR_STACK_UNDERFLOW;
   }
-  printf("%"PRIu64 "\n",machine->stack[machine->stack_size-1].as_u64);
+  printf("%" PRIu64 "\n",machine->stack[machine->stack_size-1].as_u64);
   machine->stack_size -= 1;
   return ERR_OK;
 }
@@ -60,11 +60,10 @@ err_t vm_print_i64(struct vm* machine){
   if (machine->stack_size <1){
     return ERR_STACK_UNDERFLOW;
   }
-  printf("%" PRId64 "\n",machine->stack[machine->stack_size-1].as_i64);
+  printf("%" PRIi64 "\n",machine->stack[machine->stack_size-1].as_i64);
   machine->stack_size -= 1;
   return ERR_OK;
 }
-
 
 err_t vm_dump_memory(struct vm* machine){
     if (machine->stack_size <2){
@@ -72,12 +71,12 @@ err_t vm_dump_memory(struct vm* machine){
     }
     mem_addr  addr = machine->stack[machine->stack_size -2].as_u64;
     uint64_t count = machine->stack[machine->stack_size -1].as_u64;
-    if (addr >= MAX_STATIC_MEM){
+    if (addr >= MAX_STATIC_MEM)
         return ERR_ILLEGAL_MEM_ACCESS;
-    }
-    if (addr +count <addr || addr +count  >= MAX_STATIC_MEM ){
+
+    if (addr +count <addr || addr +count  >= MAX_STATIC_MEM )
         return ERR_ILLEGAL_MEM_ACCESS;
-    }
+
 
     for (uint64_t i= 0; i <count ; ++i) {
         printf("%02X " ,machine->allocator[addr +i]);
@@ -86,7 +85,6 @@ err_t vm_dump_memory(struct vm* machine){
     machine->stack_size -=2;
     return ERR_OK;
 }
-
 
 err_t vm_write(struct vm* machine){
     if (machine->stack_size < 2){
