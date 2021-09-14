@@ -1,4 +1,4 @@
-%include "../examples/vm_lib.hasm"
+;%include "../examples/vm_lib.hasm"
 
 %bind hello "Hello, World"
 

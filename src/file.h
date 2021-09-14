@@ -11,6 +11,8 @@
 
 #if defined(__GNU__) || defined(__clang__)
 #define PACKED __attribute__((packed))
+#elif defined(_MSC_VER)
+#define PACKED (__Declaration__) __pragma(pack(push ,1)) __Declaration__ __pragma(pack(pop))
 #else
 #define PACKED
 #endif
@@ -25,7 +27,7 @@ typedef struct {
     uint64_t program_size;
     uint64_t memory_size;
     uint64_t memory_capacity;
-}PACKED file_meta_data ;
+}PACKED file_meta_data;
 
 void save_program_to_file(context * ctx,
                           const char *file_path);

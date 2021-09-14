@@ -1,11 +1,23 @@
 //
 // Created by xm on 2021/7/20.
 //
-//TODO 1:26:14
-
-
+//
 #include "vm.h"
 #include <inttypes.h>
+
+#define BINARY_OP(machine,input_type,output_type,op)\
+         do{                                     \
+         if ((machine)->stack_size <2){               \
+            return ERR_STACK_UNDERFLOW;                 \
+            }                                               \
+        (machine)->stack[machine->stack_size -2 ].as_##output_type = (machine)->stack[machine->stack_size -2].as_##input_type \
+                                                 op (machine)->stack[machine->stack_size -1].as_##input_type;   \
+        (machine)->stack_size -= 1;                                               \
+        (machine)->ip += 1;                                                       \
+    }while(false)
+
+
+
 err_t vm_execute_inst(vm* machine){
   if (machine->ip > machine->program_size){
     return ERR_ILLEGAL_INST_ACCESS;
@@ -23,6 +35,7 @@ err_t vm_execute_inst(vm* machine){
     machine->ip +=1;
     machine->stack[machine->stack_size++] = vm_inst.operand;
   }break;
+  ///
   case INST_ADDI: {
     if (machine->stack_size <2){
       return ERR_STACK_UNDERFLOW;
@@ -58,6 +71,7 @@ err_t vm_execute_inst(vm* machine){
     machine->stack_size -=1;
     machine->ip+=1;
   }break;
+  ///
   case INST_ADDF:{
     if (machine->stack_size <2){
       return ERR_STACK_UNDERFLOW;
@@ -90,6 +104,7 @@ err_t vm_execute_inst(vm* machine){
     machine->stack_size -= 1;
     machine->ip += 1;
   }break;
+  ///
   case INST_JMP:{
     machine->ip = vm_inst.operand.as_u64;
   }break;
@@ -107,22 +122,23 @@ err_t vm_execute_inst(vm* machine){
     }
     machine->stack_size-=1;
   }break;
-  case INST_GEF:{
-    if (machine->stack_size < 2){
-      return ERR_STACK_UNDERFLOW;
-    }
-    machine->stack[machine->stack_size-2].as_u64 =machine->stack[machine->stack_size-1].as_f64 >= machine->stack[machine->stack_size-2].as_f64;
-    machine->stack_size -= 1;
-    machine->ip+=1;
-  }break;
-  case INST_EQ:{
-    if (machine->stack_size <2){
-      return ERR_STACK_UNDERFLOW;
-    }
-    machine->stack[machine->stack_size-2].as_u64 =machine->stack[machine->stack_size-1].as_u64== machine->stack[machine->stack_size-2].as_u64;
-    machine->stack_size -=1;
-    machine->ip+=1;
-  }break;
+
+  ///
+
+  case INST_EQI:{BINARY_OP(machine,u64,u64,==);}break;
+  case INST_EQF:{BINARY_OP(machine,f64,u64,==);}break;
+  case INST_GTI:{BINARY_OP(machine,u64,u64,>);}break;
+  case INST_GTF:{BINARY_OP(machine,f64,u64,>);}break;
+  case INST_GEI:{BINARY_OP(machine,u64,u64,>=);}break;
+  case INST_GEF:{BINARY_OP(machine,f64,u64,>=);}break;
+  case INST_LTI:{BINARY_OP(machine,u64,u64,<);}break;
+  case INST_LTF:{BINARY_OP(machine,f64,u64,<);}break;
+  case INST_LEI:{BINARY_OP(machine,u64,u64,<=);}break;
+  case INST_LEF:{BINARY_OP(machine,f64,u64,<=);}break;
+  case INST_NEI:{BINARY_OP(machine,u64,u64,!=);}break;
+  case INST_NEF:{BINARY_OP(machine,f64,u64,!=);}break;
+  ///
+  //
   case INST_DUP:{
     if (machine->stack_size >VM_STACK_CAPACITY){
       return ERR_STACK_OVERFLOW;
@@ -158,6 +174,15 @@ err_t vm_execute_inst(vm* machine){
     machine->stack[a] = machine->stack[b];
     machine->stack[b] =t;
     machine->ip +=1;
+  }break;
+  ///
+  case INST_NOTB:{
+          if (machine->stack_size > VM_STACK_CAPACITY){
+              return ERR_STACK_OVERFLOW;
+          }
+          machine->stack[machine->stack_size-1].as_u64 = ~(machine->stack[machine->stack_size-1].as_u64);
+
+          machine->ip += 1;
   }break;
   case INST_ANDB:{
       if (machine->stack_size <2){
@@ -208,6 +233,7 @@ err_t vm_execute_inst(vm* machine){
       machine->stack_size -= 1;
       machine->ip += 1;
   }break;
+
   case INST_RET:{
     if (machine->stack_size <1){
       return ERR_STACK_UNDERFLOW;
@@ -230,14 +256,8 @@ err_t vm_execute_inst(vm* machine){
 
     machine->ip += 1;
   }break;
-  case INST_NOTB:{
-      if (machine->stack_size > VM_STACK_CAPACITY){
-          return ERR_STACK_OVERFLOW;
-      }
-      machine->stack[machine->stack_size-1].as_u64 = ~(machine->stack[machine->stack_size-1].as_u64);
 
-      machine->ip += 1;
-  }
+  ///
   case INST_READ8:{
       if (machine->stack_size < 1){
           return ERR_STACK_UNDERFLOW;
@@ -331,6 +351,7 @@ err_t vm_execute_inst(vm* machine){
       machine->ip+=1;
   }break;
   case AMOUNT_OF_INSTS:
+
   default:
     return ERR_ILLEGAL_INST;
 

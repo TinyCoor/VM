@@ -1,0 +1,71 @@
+%include "../examples/vm_lib.hasm"
+
+%bind secret "Uryyb, jbeyq! Sebz EBG13."
+
+%bind length ""
+
+%bind ROT13 13
+%bind MOD 26
+
+%bind A 65
+%bind Z 90
+%bind a 97
+%bind z 122
+
+jmp main
+
+is_between:
+    swap 3
+    swap 1
+    dup 1
+    gei
+    swap 2
+    andb
+
+
+main:
+    push 0
+loop:
+    dup 0
+    read8
+
+    uppercase:
+        dup 0
+        push A
+        push Z
+        call is_between
+        not
+        jmp_if
+
+        push A
+        call rot13
+
+        dup 1
+        swap 1
+        write8
+
+        jmp inc
+
+    not_a_rot_char
+        drop
+    inc:
+        push 1
+        addi
+
+        dup 0
+        push length
+        eq
+        not
+        jmp_if loop
+ print:
+    push length
+    push 10
+    write8
+
+    push 0
+    push 1
+    push length
+    addi
+    ffi write
+
+    halt
